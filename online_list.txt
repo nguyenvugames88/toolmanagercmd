@@ -5,4 +5,5 @@ CryptoRank|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main
 IceBerg|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/iceberg.zip|ice-proxy.js
 PinEye|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pineye2.zip|pin-proxy.js
 Yescoin|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yescoinv42.zip|yes2.js
-YuliGo|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yu-proxy.js|yu-proxy.js
+YuliGo|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yuligo.zip|yu-proxy.js
+ClayTon|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/clayton.zip|clayton-proxy.js
