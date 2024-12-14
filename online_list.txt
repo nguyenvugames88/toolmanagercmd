@@ -1,2 +1,8 @@
 PocketFi|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.zip|pocketfi-proxy.js
-Bums|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/bums.rar|bums-proxy.js
+Bums|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/bums.zip|bums-proxy.js
+Birds-SUI|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/birdssui3.zip|birds-proxy.js
+CryptoRank|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/cryptorankv21.zip|crypto-proxy.js
+IceBerg|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/iceberg.zip|ice-proxy.js
+PinEye|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pineye2.zip|pin-proxy.js
+Yescoin|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yescoinv42.zip|yes2.js
+YuliGo|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yu-proxy.js|yu-proxy.js
