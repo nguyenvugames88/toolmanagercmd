@@ -1,2 +1,2 @@
-PocketFi|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.rar|pocketfi-proxy.js
+PocketFi|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.zip|pocketfi-proxy.js
 Bums|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/bums.rar|bums-proxy.js
