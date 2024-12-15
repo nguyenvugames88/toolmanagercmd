@@ -16,3 +16,4 @@ Agent301 v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd
 Codex v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/codex.zip|codex-proxy.js
 Woton v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/wonton2.zip|won-proxy.js
 Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/coubv24.zip|coub-proxy.js
+DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/dotcoin.zip|dotcoin-proxy.js
