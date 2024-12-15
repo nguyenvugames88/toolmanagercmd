@@ -21,3 +21,4 @@ DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercm
 FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/FreeDogs.zip|main.js
 Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/memecore4.zip|meme-proxy.js
 Paws v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js
+Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/tsubasa41.zip|tsubasa-proxy.js
