@@ -18,3 +18,4 @@ Woton v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/ma
 Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/coubv24.zip|coub-proxy.js
 DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/dotcoin.zip|dotcoin-proxy.js
 DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/duckchain2.zip|duckchain-proxy.js
+FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/FreeDogs.zip|main.js
