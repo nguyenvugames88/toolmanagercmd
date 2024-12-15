@@ -22,3 +22,4 @@ FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd
 Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/memecore4.zip|meme-proxy.js
 Paws v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js
 Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/tsubasa41.zip|tsubasa-proxy.js
+Rating v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/rating.zip|rating-proxy.js
