@@ -15,3 +15,4 @@ BabyDog v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/
 Agent301 v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/agent5.zip|301-proxy.js
 Codex v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/codex.zip|codex-proxy.js
 Woton v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/wonton2.zip|won-proxy.js
+Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/coubv24.zip|coub-proxy.js
