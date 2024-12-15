@@ -11,3 +11,4 @@ Boinkers v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd
 Okx Racer v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/okx-v23.zip|okx-proxy.js
 Hi Pin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pinai.zip|pinai-proxy.js
 Banana v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/banana4.zip|banana-proxy.py
+BabyDog v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/babydoge.zip|babydoge-proxy.js
