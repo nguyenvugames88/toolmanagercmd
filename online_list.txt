@@ -7,3 +7,4 @@ PinEye v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/m
 Yescoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yescoinv42.zip|yes2.js
 YuliGo v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yuligo.zip|yu-proxy.js
 ClayTon v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/clayton.zip|clayton-proxy.js
+Boinkers v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Boinkers.zip|bot.py
