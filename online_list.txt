@@ -10,3 +10,4 @@ ClayTon v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/
 Boinkers v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Boinkers.zip|bot.py
 Okx Racer v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/okx-v23.zip|okx-proxy.js
 Hi Pin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pinai.zip|pinai-proxy.js
+Banana v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/banana4.zip|banana-proxy.py
