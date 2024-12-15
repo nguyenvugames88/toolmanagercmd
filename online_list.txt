@@ -25,3 +25,4 @@ Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/
 Rating v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/rating.zip|rating-proxy.js
 Puni v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/puni.zip|puni-proxy.js
 TimeFarm v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/timefarm.zip|time-proxy.js
+PipWorld v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pip2.zip|pip-proxy.js
