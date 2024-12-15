@@ -1,28 +1,28 @@
-PocketFi v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.zip|pocketfi-proxy.js
-Bums v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/bums.zip|bums-proxy.js
-Birds-SUI v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/birdssui3.zip|birds-proxy.js
-CryptoRank v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/cryptorankv21.zip|crypto-proxy.js
-IceBerg v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/iceberg.zip|ice-proxy.js
-PinEye v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pineye2.zip|pin-proxy.js
-Yescoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yescoinv42.zip|yes2.js
-YuliGo v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yuligo.zip|yu-proxy.js
-ClayTon v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/clayton.zip|clayton-proxy.js
-Boinkers v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Boinkers.zip|bot.py
-Okx Racer v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/okx-v23.zip|okx-proxy.js
-Hi Pin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pinai.zip|pinai-proxy.js
-Banana v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/banana4.zip|banana-proxy.py
-BabyDog v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/babydoge.zip|babydoge-proxy.js
-Agent301 v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/agent5.zip|301-proxy.js
-Codex v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/codex.zip|codex-proxy.js
-Woton v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/wonton2.zip|won-proxy.js
-Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/coubv24.zip|coub-proxy.js
-DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/dotcoin.zip|dotcoin-proxy.js
-DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/duckchain2.zip|duckchain-proxy.js
-FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/FreeDogs.zip|main.js
-Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/memecore4.zip|meme-proxy.js
-Paws v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js
-Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/tsubasa41.zip|tsubasa-proxy.js
-Rating v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/rating.zip|rating-proxy.js
-Puni v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/puni.zip|puni-proxy.js
-TimeFarm v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/timefarm.zip|time-proxy.js
-PipWorld v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pip2.zip|pip-proxy.js
+PocketFi v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.zip|pocketfi-proxy.js|https://t.me/pocketfi_bot/Mining?startapp=5926079709
+Bums v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/bums.zip|bums-proxy.js|https://t.me/bums/app?startapp=ref_25y1OhxB
+Birds-SUI v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/birdssui3.zip|birds-proxy.js|https://t.me/birdx2_bot/birdx?startapp=5926079709
+CryptoRank v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/cryptorankv21.zip|crypto-proxy.js|https://t.me/cryptorank_app_bot/points?startapp=ref_5926079709_
+IceBerg v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/iceberg.zip|ice-proxy.js|https://t.me/IcebergAppBot/IcebergPlay?startapp=referral_5926079709
+PinEye v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pineye2.zip|pin-proxy.js|https://t.me/PinEye_Bot/pineye?startapp=r_5926079709
+Yescoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yescoinv42.zip|yes2.js|https://t.me/theYescoin_bot/Yescoin?startapp=PYtbmX
+YuliGo v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yuligo.zip|yu-proxy.js|https://t.me/YuliGoBot/app?startapp=AJ3EPP
+ClayTon v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/clayton.zip|clayton-proxy.js|https://t.me/claytoncoinbot/game?startapp=5926079709
+Boinkers v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Boinkers.zip|bot.py|https://t.me/boinker_bot/boinkapp?startapp=boink5926079709
+Okx Racer v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/okx-v23.zip|okx-proxy.js|https://t.me/OKX_official_bot/OKX_Racer?startapp=linkCode_33963759
+Hi Pin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pinai.zip|pinai-proxy.js|https://t.me/hi_PIN_bot/app?startapp=p5SNrK7
+Banana v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/banana4.zip|banana-proxy.py|https://t.me/OfficialBananaBot/banana?startapp=referral=T6JHJG5
+BabyDog v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/babydoge.zip|babydoge-proxy.js|https://t.me/BabyDogePAWS_Bot/game?startapp=r_5926079709
+Agent301 v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/agent5.zip|301-proxy.js|https://t.me/Agent301Bot/app?startapp=onetime5926079709
+Codex v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/codex.zip|codex-proxy.js|https://t.me/codexfieldbot/wallet?startapp=RFDDECk8p5DK
+Wonton v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/wonton2.zip|won-proxy.js|https://t.me/WontonOrgBot/gameapp?startapp=referralCode=SHF6DLZ0
+Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/coubv24.zip|coub-proxy.js|https://t.me/coub/app?startapp=coub__marker_18865930
+DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/dotcoin.zip|dotcoin-proxy.js|https://t.me/dotcoin_bot?start=r_5926079709
+DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/duckchain2.zip|duckchain-proxy.js|https://t.me/DuckChain_bot/quack?startapp=qNzeSoHN
+FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/FreeDogs.zip|main.js|https://t.me/theFreeDogs_bot/app?startapp=ref_EmjG6sGs
+Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/memecore4.zip|meme-proxy.js|https://t.me/Memes_War_Start_Bot/MemesWar?startapp=SLG381
+Paws v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js|https://t.me/PAWSOG_bot/PAWS?startapp=U9gR60PV
+Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/tsubasa41.zip|tsubasa-proxy.js|https://t.me/TsubasaRivalsBot/start?startapp=inviter_id-5926079709
+Rating v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/rating.zip|rating-proxy.js|https://t.me/rating/app?startapp=ref_97548a5926079709
+Puni v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/puni.zip|puni-proxy.js|https://t.me/uniquidpunibot/uniquid?startapp=5926079709
+TimeFarm v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/timefarm.zip|time-proxy.js|https://t.me/TimeFarmCryptoBot?start=1nPHNx3KDpsvrofLX
+PipWorld v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pip2.zip|pip-proxy.js|https://t.me/pipworld_bot/start?startapp=ref5926079709
