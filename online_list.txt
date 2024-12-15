@@ -17,3 +17,4 @@ Codex v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/ma
 Woton v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/wonton2.zip|won-proxy.js
 Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/coubv24.zip|coub-proxy.js
 DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/dotcoin.zip|dotcoin-proxy.js
+DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/duckchain2.zip|duckchain-proxy.js
