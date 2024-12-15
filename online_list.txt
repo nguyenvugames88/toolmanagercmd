@@ -23,3 +23,4 @@ Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd
 Paws v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js
 Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/tsubasa41.zip|tsubasa-proxy.js
 Rating v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/rating.zip|rating-proxy.js
+Puni v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/puni.zip|puni-proxy.js
