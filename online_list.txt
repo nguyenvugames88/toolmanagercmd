@@ -19,3 +19,4 @@ Coub v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/mai
 DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/dotcoin.zip|dotcoin-proxy.js
 DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/duckchain2.zip|duckchain-proxy.js
 FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/FreeDogs.zip|main.js
+Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/memecore4.zip|meme-proxy.js
