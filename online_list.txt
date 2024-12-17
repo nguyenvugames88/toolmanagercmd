@@ -27,3 +27,4 @@ Puni v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/mai
 TimeFarm v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/timefarm.zip|time-proxy.js|https://t.me/TimeFarmCryptoBot?start=1nPHNx3KDpsvrofLX
 PipWorld v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pip2.zip|pip-proxy.js|https://t.me/pipworld_bot/start?startapp=ref5926079709
 TronKeeper v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/TronKeeper.zip|bot.py|https://t.me/TronKeeperBot/app?startapp=5926079709
+Blum v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/BlumBOT.zip|blum.py|https://t.me/BlumCryptoBot/app?startapp=ref_8cHziRqAyd
