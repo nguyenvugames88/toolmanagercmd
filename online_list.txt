@@ -28,3 +28,4 @@ TimeFarm v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd
 PipWorld v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pip2.zip|pip-proxy.js|https://t.me/pipworld_bot/start?startapp=ref5926079709
 TronKeeper v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/TronKeeper.zip|bot.py|https://t.me/TronKeeperBot/app?startapp=5926079709
 Blum v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/BlumBOT.zip|blum.py|https://t.me/blum/app?startapp=ref_lQB2LI1V3C
+Snapter v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Snapster.zip|bot.py|https://t.me/snapster_bot?start=ref_QvwOUOGVIl97Hv
