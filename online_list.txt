@@ -7,7 +7,7 @@ PinEye v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/m
 Yescoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yescoinv42.zip|yes2.js|https://t.me/theYescoin_bot/Yescoin?startapp=PYtbmX
 YuliGo v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/yuligo.zip|yu-proxy.js|https://t.me/YuliGoBot/app?startapp=AJ3EPP
 ClayTon v1.0.1|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/clayton.zip|clayton-proxy.js|https://t.me/claytoncoinbot/game?startapp=5926079709
-Boinkers v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Boinkers.zip|bot.py|https://t.me/boinker_bot/boinkapp?startapp=boink5926079709
+Boinkers v1.0.1|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/Boinkers.zip|bot.py|https://t.me/boinker_bot/boinkapp?startapp=boink5926079709
 Okx Racer v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/okx-v23.zip|okx-proxy.js|https://t.me/OKX_official_bot/OKX_Racer?startapp=linkCode_33963759
 Hi Pin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pinai.zip|pinai-proxy.js|https://t.me/hi_PIN_bot/app?startapp=p5SNrK7
 Banana v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/banana4.zip|banana-proxy.py|https://t.me/OfficialBananaBot/banana?startapp=referral=T6JHJG5
