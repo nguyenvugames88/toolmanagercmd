@@ -20,7 +20,7 @@ DotCoin v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/
 DuckChain v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/duckchain2.zip|duckchain-proxy.js|https://t.me/DuckChain_bot/quack?startapp=qNzeSoHN
 FreeDogs v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/FreeDogs.zip|main.js|https://t.me/theFreeDogs_bot/app?startapp=ref_EmjG6sGs
 Meme.war v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/memecore4.zip|meme-proxy.js|https://t.me/Memes_War_Start_Bot/MemesWar?startapp=SLG381
-Paws v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js|https://t.me/PAWSOG_bot/PAWS?startapp=U9gR60PV
+Paws v1.0.1|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/paws.zip|paws-proxy.js|https://t.me/PAWSOG_bot/PAWS?startapp=U9gR60PV
 Tsubasa v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/tsubasa41.zip|tsubasa-proxy.js|https://t.me/TsubasaRivalsBot/start?startapp=inviter_id-5926079709
 Rating v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/rating.zip|rating-proxy.js|https://t.me/rating/app?startapp=ref_97548a5926079709
 Puni v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/puni.zip|puni-proxy.js|https://t.me/uniquidpunibot/uniquid?startapp=5926079709
