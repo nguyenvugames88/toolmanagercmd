@@ -1,4 +1,4 @@
-PocketFi v1.0.1|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.zip|pocketfi-proxy.js|https://t.me/pocketfi_bot/Mining?startapp=5926079709
+PocketFi v1.0.1|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/pocketfiv2-fix.zip|pocketfi-proxy.js|https://t.me/pocketfi_bot/Mining?startapp=5926079709|https://web.telegram.org/a/#6546647202|img[@alt="⛏"]
 Bums v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/bums.zip|bums-proxy.js|https://t.me/bums/app?startapp=ref_25y1OhxB
 Birds-SUI v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/birdssui3.zip|birds-proxy.js|https://t.me/birdx2_bot/birdx?startapp=5926079709
 CryptoRank v1.0.0|https://raw.githubusercontent.com/nguyenvugames88/toolmanagercmd/main/cryptorankv21.zip|crypto-proxy.js|https://t.me/cryptorank_app_bot/points?startapp=ref_5926079709_
