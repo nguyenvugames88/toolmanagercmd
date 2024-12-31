@@ -1,0 +1,147 @@
+const puppeteer = require('puppeteer');
+const path = require('path');
+const fs = require('fs');
+const { HttpsProxyAgent } = require('https-proxy-agent');
+const axios = require('axios');
+
+// Hàm đọc danh sách profile và proxy từ file TXT
+const readProfilesFromFile = () => {
+    const filePath = path.join(__dirname, 'SelectedAllProfiles.txt');
+    if (!fs.existsSync(filePath)) {
+        console.error('File SelectedAllProfiles.txt không tồn tại.');
+        process.exit(1);
+    }
+
+    const lines = fs.readFileSync(filePath, 'utf-8').split('\n').map(line => line.trim()).filter(Boolean);
+    const profiles = lines.map(line => {
+        const parts = line.split('|');
+        return { folderName: parts[0], proxy: parts[1] };
+    });
+
+    return profiles;
+};
+
+// Hàm kiểm tra proxy
+const checkProxy = async (proxy) => {
+    try {
+        const agent = new HttpsProxyAgent(`http://${proxy.username}:${proxy.password}@${proxy.host}:${proxy.port}`);
+        const response = await axios.get('https://httpbin.org/ip', { httpsAgent: agent });
+        console.log('Proxy is working:', response.data);
+        return true;
+    } catch (error) {
+        console.error('Error with proxy:', error.message);
+        return false;
+    }
+};
+
+async function run() {
+    // Đọc danh sách profile và proxy từ file
+    const profiles = readProfilesFromFile();
+
+    for (const { folderName, proxy } of profiles) {
+        let browser;
+        try {
+            // Kiểm tra proxy trước khi khởi động Puppeteer
+            const proxyParts = proxy.match(/^http:\/\/([^:]+):([^@]+)@([^:]+):(\d+)$/);
+            if (!proxyParts) throw new Error(`Proxy "${proxy}" không hợp lệ.`);
+
+            const proxyHost = proxyParts[3];
+            const proxyPort = parseInt(proxyParts[4], 10);
+            const proxyUsername = proxyParts[1];
+            const proxyPassword = proxyParts[2];
+
+            const proxyObj = { host: proxyHost, port: proxyPort, username: proxyUsername, password: proxyPassword };
+
+            const isProxyValid = await checkProxy(proxyObj);
+            if (!isProxyValid) {
+                console.error(`Proxy "${proxy}" không hợp lệ, không thể tiếp tục.`);
+                continue; // Bỏ qua profile này nếu proxy không hợp lệ
+            }
+
+            // Tạo thư mục cho profile nếu chưa tồn tại
+            const userDataPath = path.join(__dirname, 'profiles', folderName);
+            if (!fs.existsSync(userDataPath)) {
+                fs.mkdirSync(userDataPath, { recursive: true });
+            }
+
+            console.log(`Sử dụng profile: ${folderName} với proxy: ${proxy}`);
+
+            // Khởi động trình duyệt
+            browser = await puppeteer.launch({
+                headless: false, // Chế độ không headless để thấy giao diện trình duyệt
+                args: [
+                    `--proxy-server=http://${proxyHost}:${proxyPort}`,
+                    '--start-maximized',
+                    '--disable-notifications',
+                    '--disable-extensions',
+                    '--no-service-worker', // Tắt Service Worker để tránh vấn đề
+                    `--user-data-dir=${userDataPath}`
+                ]
+            });
+
+            const page = await browser.newPage();
+
+            // Thiết lập xác thực proxy sau khi mở trang mới
+            await page.authenticate({
+                username: proxyUsername,
+                password: proxyPassword
+            });
+
+            // Cấu hình lại phương thức chờ để xử lý việc web Telegram có thể yêu cầu xác thực proxy
+            page.on('dialog', async dialog => {
+                console.log('Dialog appears:', dialog.message());
+                // Tự động đóng hộp thoại xác thực (nếu có)
+                await dialog.accept();
+            });
+
+            // Chờ để trang load thành công
+            await page.goto('https://web.telegram.org/a/#7413313712', {
+                waitUntil: 'networkidle2' // Đảm bảo trang đã tải xong
+            });
+
+            // Thêm phần hiển thị FolderName trên góc của trình duyệt
+            await page.evaluate((folderName) => {
+                const profileLabel = document.createElement('div');
+                profileLabel.style.position = 'fixed';
+                profileLabel.style.top = '10px';
+                profileLabel.style.right = '10px';
+                profileLabel.style.padding = '10px';
+                profileLabel.style.backgroundColor = '#fff';
+                profileLabel.style.color = '#000';
+                profileLabel.style.border = '1px solid #ccc';
+                profileLabel.style.fontSize = '16px';
+                profileLabel.style.fontWeight = 'bold';
+                profileLabel.textContent = `Profile: ${folderName}`;
+                profileLabel.style.zIndex = '9999';
+                document.body.appendChild(profileLabel);
+            }, folderName);
+
+            // Chờ người dùng đóng trình duyệt và tiếp tục qua profile tiếp theo
+            await browser.waitForTarget(target => target.type() === 'page', { timeout: 0 }).catch(() => {});
+            browser.on('disconnected', () => {
+                console.log(`Trình duyệt bị đóng ngoài ý muốn cho profile "${folderName}".`);
+            });
+
+            // Đợi trình duyệt đóng và tiếp tục
+            await new Promise((resolve) => browser.on('disconnected', resolve));
+
+        } catch (err) {
+            console.error(`Lỗi khi chạy profile "${folderName}":`, err);
+
+            // Nếu gặp lỗi xác thực proxy, hãy thử khởi động lại
+            if (err.message.includes('ERR_INVALID_AUTH_CREDENTIALS')) {
+                console.log('Proxy xác thực không hợp lệ, đang khởi động lại...');
+                if (browser) {
+                    await browser.close(); // Đóng trình duyệt cũ
+                }
+                // Khởi động lại trình duyệt
+                continue; // Tiếp tục với profile tiếp theo
+            }
+        }
+    }
+
+    console.log('Hoàn thành tất cả profile.');
+}
+
+// Chạy hàm run
+run();
