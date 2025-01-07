@@ -136,14 +136,14 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
     const proxyObj = { host: proxyHost, port: parseInt(proxyPort, 10), username: proxyUsername, password: proxyPassword };
 
     retryProxy(proxyHost,proxyObj,retryLimit)
-    let browser  ,retry ,launchBrowser
+    let browser  ,retry ,launchBrowser,userDataPath
     const head = Number(showBrowser) === 1 ? false : true;
     const proxyAuthURL = `http://${proxyHost}:${proxyPort}`;
     // Xử lý profile khi proxy hợp lệ
     try {
         console.log(`[${proxyHost}] Đang xử lý profile: ${folderName}`.magenta);
 
-        const userDataPath = path.join(__dirname, 'profiles', folderName);
+        userDataPath = path.join(__dirname, 'profiles', folderName);
         if (!fs.existsSync(userDataPath)) {
             fs.mkdirSync(userDataPath, { recursive: true });
         }
