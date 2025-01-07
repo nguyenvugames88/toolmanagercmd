@@ -658,7 +658,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
     }
 
 };
-async function retryFailedProfiles(failedProfiles, elementSelector,dataFilePath,theard,showBrowser) {
+async function retryFailedProfiles(failedProfiles,url, elementSelector,dataFilePath,theard,showBrowser) {
     if (failedProfiles.length > 0) {
         console.log(`Thử lại ${failedProfiles.length} profile gặp lỗi...`);
 
@@ -714,7 +714,7 @@ const run = async () => {
             });
         });
 
-        await retryFailedProfiles(failedProfiles, elementSelector, dataFilePath,theard,showBrowser); 
+        await retryFailedProfiles(failedProfiles,url, elementSelector, dataFilePath,theard,showBrowser); 
 
         if (logoutError.length > 0) {
             const bom = '\uFEFF'; // BOM cho UTF-8
