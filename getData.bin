@@ -139,6 +139,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
     let browser 
     let retry
     let launchBrowser
+    const head = Number(showBrowser) === 1 ? false : true;
     // Xử lý profile khi proxy hợp lệ
     try {
         console.log(`[${proxyHost}] Đang xử lý profile: ${folderName}`.magenta);
@@ -175,7 +176,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
             }
         };
         const proxyAuthURL = `http://${proxyHost}:${proxyPort}`;
-        const head = Number(showBrowser) === 1 ? false : true;
+        
         console.log('head: ', head);
 
         browser = await retry(() => launchBrowser({
@@ -624,7 +625,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
 
                 // Mở lại trang mới hoặc tiếp tục với quy trình của bạn
                 const page = await newBrowser.newPage();
-        // Lấy danh sách tất cả cookies
+                // Lấy danh sách tất cả cookies
                 const cookies = await page.cookies();
 
                 // Xóa tất cả cookies liên quan đến xác thực proxy (giả sử cookie xác thực có tên là 'proxy-auth-cookie')
