@@ -293,7 +293,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
         if (error.message.includes('Failed to launch the browser process')) {
             console.error(`[${folderName}] [${proxyHost}] Không thể khởi chạy trình duyệt:`, error.message);
             logoutError.push(`Profile: ${folderName} - Lỗi profile cần tạo lại.`);        
-
+            return { browser: null, page: null, proxyHost: proxyHost };
         } else if (error.message.includes('net::ERR_INVALID_AUTH_CREDENTIALS')) {
             // Khi gặp lỗi "net::ERR_INVALID_AUTH_CREDENTIALS"
             console.error(`[${folderName}] [${proxyHost}] Lỗi xác thực proxy: ${error.message}`);
@@ -654,32 +654,38 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
 
 
 
-async function retryFailedProfiles(failedProfiles,url, elementSelector,dataFilePath,theard,showBrowser) {
+async function retryFailedProfiles(failedProfiles, url, elementSelector, dataFilePath, theard, showBrowser) {
     if (failedProfiles.length > 0) {
         console.log(`Thử lại ${failedProfiles.length} profile gặp lỗi...`.bgMagenta);
 
-        // Chạy lại các tác vụ với async.eachLimit để giới hạn số lượng tác vụ chạy đồng thời
-        await new Promise((resolve, reject) => {
-            async.eachLimit(failedProfiles, theard, async (profile) => {
-                try {
-                    // Xử lý lại mỗi profile bị lỗi
-                    await processProfile(profile, { url, elementSelector, dataFilePath, showBrowser });
-                    console.log(`[${profile.folderName}] [${profile.proxy}] Đã xử lý lại thành công`.blue);
-                } catch (err) {
-                    console.error(`[${profile.folderName}] [${profile.proxy}] Xử lý lại gặp lỗi: ${err.message}`);
-                }
-            }, (err) => {
-                if (err) {
-                    reject(err); // Nếu có lỗi trong khi xử lý, reject promise
-                } else {
-                    resolve(); // Nếu không có lỗi, resolve promise
-                }
+        try {
+            // Sử dụng async.eachLimit để giới hạn số lượng tác vụ chạy đồng thời
+            await new Promise((resolve, reject) => {
+                async.eachLimit(failedProfiles, theard, async (profile) => {
+                    try {
+                        // Xử lý lại mỗi profile bị lỗi
+                        await processProfile(profile, { url, elementSelector, dataFilePath, showBrowser });
+                        console.log(`[${profile.folderName}] [${profile.proxy}] Đã xử lý lại thành công`.blue);
+                    } catch (err) {
+                        console.error(`[${profile.folderName}] [${profile.proxy}] Xử lý lại gặp lỗi: ${err.message}`);
+                    }
+                }, (err) => {
+                    if (err) {
+                        console.error('Lỗi khi chạy lại các profile:', err.message);
+                        reject(err); // Nếu có lỗi trong khi xử lý, reject promise
+                    } else {
+                        resolve(); // Nếu không có lỗi, resolve promise
+                    }
+                });
             });
-        });
+        } catch (error) {
+            console.error('Lỗi trong retryFailedProfiles:', error.message);
+        }
     } else {
         console.log('Không có profile nào để thử lại.');
     }
 }
+
 
 const run = async () => {
     try{
@@ -733,12 +739,13 @@ const run = async () => {
         } else {
             console.log('Không có lỗi nào cần ghi ra file.');
         }
-
         console.log(`Hoàn thành ${countProfile} profile.`);
         await new Promise(resolve => setTimeout(resolve, 5000)); 
+        process.exit(0); // Thoát chương trình
     }catch(error) {
         console.error(` Lỗi với": `, error.message);
         await new Promise(resolve => setTimeout(resolve, 5000)); 
+        process.exit(0); // Thoát chương trình
     }
 };
 
