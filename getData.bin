@@ -57,25 +57,7 @@ const extractUserData = (url) => {
     return result.replace(/%3D/g, '=').replace(/%25/g, '%').replace(/%26/g, '&') || '0';
 };
 
-async function checkAndDismissDialog(page) {
-    try {
-        const dialogs = await page.$$('dialog');  // Kiểm tra tất cả các hộp thoại (dialog) đang mở
-
-        if (dialogs.length > 0) {
-            console.log("Dialog found! Đang tắt dialog...");
-            for (let dialog of dialogs) {
-                // Đóng tất cả các dialog nếu có
-                await dialog.evaluate(dialog => dialog.close());
-            }
-        } else {
-            console.log("Không có dialog nào mở.");
-        }
-    } catch (error) {
-        console.error("Lỗi khi kiểm tra hoặc đóng dialog:", error.message);
-    }
-}
-
-async function reloadPage(folderName,proxyHost) {
+async function reloadPage(page,folderName,proxyHost) {
     try {
         let retryCount = 0;
         const maxRetries = 5; // Số lần thử reload tối đa
@@ -84,17 +66,17 @@ async function reloadPage(folderName,proxyHost) {
         while (!isReloaded && retryCount < maxRetries) {
             try {
                 retryCount++;
-                console.log(`[${folderName}] [${proxyHost}][Retry ${retryCount}] Đang reload trang...`);
+                console.log(`[${folderName}] [${proxyHost}][Retry ${retryCount}] Đang reload trang...`.bgYellow);
                 await page.reload({ waitUntil: 'networkidle0' }); // Đợi khi không còn kết nối mạng nào
     
                 // Nếu reload thành công, đặt trạng thái isReloaded = true
                 isReloaded = true;
-                console.log(`[${folderName}] [${proxyHost}]Đã reload thành công và kiểm tra dialog.`);
+                console.log(`[${folderName}] [${proxyHost}]Đã reload thành công và kiểm tra dialog.`.green);
             } catch (error) {
                 console.error(`[Retry ${retryCount}] Lỗi khi reload: ${error.message}`);
     
                 if (error.message.includes("Navigation timeout")) {
-                    console.log(`[${folderName}] [${proxyHost}]Navigation timeout xảy ra, đang đợi và thử lại...`);
+                    console.log(`[${folderName}] [${proxyHost}]Navigation timeout xảy ra, đang đợi và thử lại...`.yellow);
                     await new Promise(resolve => setTimeout(resolve, 5000)); // Đợi 5 giây trước khi thử lại
                 } else {
                     throw error; // Nếu là lỗi khác, thoát vòng lặp và xử lý
@@ -118,7 +100,7 @@ async function retryProxy(folderName,proxyHost, proxyObj, retryLimit = 10) {
     while (!isProxyValid && retryCount < retryLimit) {
         isProxyValid = await checkProxy(proxyObj);
         if (isProxyValid) {
-            console.log(`[${folderName}] [${proxyHost}] Proxy hợp lệ.`);
+            console.log(`[${folderName}] [${proxyHost}] Proxy hợp lệ.`.green);
             break;
         } else {
             console.error(`[${folderName}] [${proxyHost}] Proxy không hợp lệ. Thử lại sau 30 giây...`);
@@ -156,7 +138,7 @@ async function retryProxy(folderName,proxyHost, proxyObj, retryLimit = 10) {
     }
 
     // Tiến hành công việc khác nếu proxy hợp lệ
-    console.log(`[${folderName}] [${proxyHost}] Đã sẵn sàng để tiếp tục.`);
+    console.log(`[${folderName}] [${proxyHost}] Đã sẵn sàng để tiếp tục.`.blue);
 }
 
 async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) {
@@ -235,7 +217,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                 await page.deleteCookie(cookie);
             }
         }
-        console.log(`[${folderName}] [${proxyHost}] Đã xóa các cookie liên quan đến xác thực proxy.`);
+        console.log(`[${folderName}] [${proxyHost}] Đã xóa các cookie liên quan đến xác thực proxy.`.blue);
 
         // Xác thực proxy nếu có
         if (proxyUsername && proxyPassword) {
@@ -243,7 +225,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                 username: proxyUsername,
                 password: proxyPassword
             });
-            console.log(`[${folderName}] [${proxyHost}] Đã xác thực proxy: ${proxyUsername}@${proxyHost}`);
+            console.log(`[${folderName}] [${proxyHost}] Đã xác thực proxy: ${proxyUsername}@${proxyHost}`.green);
         }
 
         // Truy cập URL
@@ -266,7 +248,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
             document.body.appendChild(profileLabel);
         }, folderName);
 
-        console.log(`[${folderName}] [${proxyHost}] Xử lý thành công!`);
+        console.log(`[${folderName}] [${proxyHost}] Xử lý thành công!`.green);
 
         // Trả về browser và page sau khi xử lý xong
         return { browser, page, proxyHost };
@@ -285,7 +267,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
             try {
                 // Đóng trình duyệt hiện tại
                 await browser.close();
-                console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt vì lỗi xác thực proxy.`);
+                console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt vì lỗi xác thực proxy.`.blue);
             } catch (closeError) {
                 console.error(`[${folderName}] [${proxyHost}] Lỗi khi đóng trình duyệt: ${closeError.message}`);
             }
@@ -307,7 +289,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                     defaultViewport: { width: 800, height: 700 }
                 }), 3);
 
-                console.log(`[${folderName}] [${proxyHost}] Đã mở lại trình duyệt sau khi gặp lỗi xác thực proxy.`);
+                console.log(`[${folderName}] [${proxyHost}] Đã mở lại trình duyệt sau khi gặp lỗi xác thực proxy.`.blue);
 
                 // Mở lại trang mới hoặc tiếp tục với quy trình của bạn
                 const page = await newBrowser.newPage();
@@ -319,7 +301,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                     // Kiểm tra và xóa các cookie liên quan đến xác thực proxy
                     if (cookie.name === 'proxy-auth-cookie' || cookie.domain === 'proxy.example.com') { // Thay đổi theo tên hoặc domain cookies proxy của bạn
                         await page.deleteCookie(cookie);
-                        console.log(`[${folderName}] [${proxyHost}] Đã xóa cookie: ${cookie.name} với domain: ${cookie.domain}`);
+                        console.log(`[${folderName}] [${proxyHost}] Đã xóa cookie: ${cookie.name} với domain: ${cookie.domain}`.blue);
                     }
                 }
                 // Xác thực lại proxy (nếu cần thiết)
@@ -370,6 +352,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             // Kiểm tra số lần lặp đã vượt quá giới hạn chưa
             if (loopAttempts > maxLoopAttempts) {
                 console.log(`[${folderName}] [${proxyHost}] Đã đạt số vòng lặp tối đa (${maxLoopAttempts}). Thoát để tránh chạy vô hạn.`);
+                logoutError.push(`Profile: ${folderName} - Đã đạt số vòng lặp tối đa (${maxLoopAttempts}). Thoát để tránh chạy vô hạn.`);
                 if (browser && browser.isConnected()) {
                     await browser.close();
                 }
@@ -380,11 +363,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử button[class="Button tiny primary fluid has-ripple"]...`);
                 await page.waitForSelector('button[class="Button tiny primary fluid has-ripple"]', { visible: true, timeout: 5000 });
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Thêm thời gian chờ trước khi click
-                console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]! Đang click...`);
+                console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]! Đang click...`.blue);
                 await page.click('button[class="Button tiny primary fluid has-ripple"]');
             } catch (error) {
                 if (error.name === 'TimeoutError') {
-                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]. Tiếp tục.`); 
+                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]. Tiếp tục.`.yellow); 
                 } else {
                     console.error(`[${folderName}] [${proxyHost}] Lỗi khi xử lý phần tử:`, error.message);
                 }
@@ -393,14 +376,14 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
             await page.waitForSelector(elementSelector, { visible: true });
             await new Promise(resolve => setTimeout(resolve, 2000)); // Thêm thời gian chờ trước khi click
-            console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`);
+            console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
             await page.click(elementSelector);
 
             // Chờ nút "Confirm"
             console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
             await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
             await new Promise(resolve => setTimeout(resolve, 2000)); 
-            console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang click...`);
+            console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang click...`.blue);
             await page.click('button.Button.confirm-dialog-button.default.primary.text');
 
             // Kiểm tra iframe
@@ -409,15 +392,15 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             const iframe = await page.$('iframe');
             
             if (iframe) {
-                console.log(`[${folderName}] [${proxyHost}] Iframe đã xuất hiện!`);
+                console.log(`[${folderName}] [${proxyHost}] Iframe đã xuất hiện!`.green);
                 const iframeSrc = await page.evaluate(iframe => iframe.src, iframe);
                 if (!iframeSrc || iframeSrc.trim() === '') {
-                    console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`);
-                    await reloadPage(folderName, proxyHost);
+                    console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`.yellow);
+                    await reloadPage(page,folderName, proxyHost);
                     retryAttempts = 0;
                     reloadAttempts++;
                     if (reloadAttempts >= maxReloads) {
-                        console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`);
+                        console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`.bgRed);
                         logoutError.push(`Profile: ${folderName} - Không tìm thấy Iframe.`);
                         await browser.close();
                         break;
@@ -425,11 +408,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 } else {
                     iframeDetected = true;
                     const query_id = extractUserData(iframeSrc);
-                    console.log(`[${folderName}] [${proxyHost}] query_id của iframe: ${query_id}`);
+                    console.log(`[${folderName}] [${proxyHost}] query_id của iframe: ${query_id}`.green);
                     fs.appendFileSync(dataFilePath, `${query_id}\n`, 'utf-8');
-                    console.log(`[${folderName}] [${proxyHost}] Đã ghi query_id vào file: ${dataFilePath}`);
+                    console.log(`[${folderName}] [${proxyHost}] Đã ghi query_id vào file: ${dataFilePath}`.green);
                     await browser.close();
-                    console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt cho profile: ${folderName}`);
+                    console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt cho profile: ${folderName}`.green);
                 }
             } else {
                 console.log(`[${folderName}] [${proxyHost}] Iframe chưa xuất hiện. Quay lại click nút "Play".`);
@@ -439,7 +422,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 if (loginElement) {
                     const textContent = await page.evaluate(element => element.textContent, loginElement);
                     if (textContent.includes('Log in to Telegram by QR Code')) {
-                        console.log(`[${folderName}] [${proxyHost}] Đã đăng xuất khỏi Telegram. Chuyển qua profile khác.`);
+                        console.log(`[${folderName}] [${proxyHost}] Đã đăng xuất khỏi Telegram. Chuyển qua profile khác.`.bgRed);
                         logoutError.push(`Profile: ${folderName} - Đã đăng xuất khỏi Telegram`);
                         await browser.close();
                         break;
@@ -448,12 +431,12 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 
                 retryAttempts++;
                 if (retryAttempts >= maxRetries) {
-                    console.log(`[${folderName}] [${proxyHost}] Đã thử ${maxRetries} lần mà không thấy iframe. Reload lại trang.`);
-                    await reloadPage(folderName, proxyHost);
+                    console.log(`[${folderName}] [${proxyHost}] Đã thử ${maxRetries} lần mà không thấy iframe. Reload lại trang.`.yellow);
+                    await reloadPage(page,folderName, proxyHost);
                     retryAttempts = 0;
                     reloadAttempts++;
                     if (reloadAttempts >= maxReloads) {
-                        console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`);
+                        console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`.bgRed);
                         logoutError.push(`Profile: ${folderName} - Không tìm thấy Iframe.`);
                         await browser.close();
                         break;
@@ -468,7 +451,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     if (loginElement) {
                         const textContent = await page.evaluate(element => element.textContent, loginElement);
                         if (textContent.includes('Log in to Telegram by QR Code')) {
-                            console.log(`[${folderName}] [${proxyHost}] Đã đăng xuất khỏi Telegram. Chuyển qua profile khác.`);
+                            console.log(`[${folderName}] [${proxyHost}] Đã đăng xuất khỏi Telegram. Chuyển qua profile khác.`.bgRed);
                             logoutError.push(`Profile: ${folderName} - Đã đăng xuất khỏi Telegram`);
                             await browser.close();
                             break;
@@ -481,25 +464,26 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         const iframeSrc = await page.evaluate(iframe => iframe.src, iframe);
                         if (!iframeSrc || iframeSrc.trim() === '') {
                             console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`);
-                            await reloadPage(folderName, proxyHost);
+                            await reloadPage(page,folderName, proxyHost);
                             retryAttempts = 0;
                             reloadAttempts++;
                             if (reloadAttempts >= maxReloads) {
-                                console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`);
+                                console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`.bgRed);
                                 await browser.close();
                                 break;
                             }
                         } else {
                             iframeDetected = true;
                             const query_id = extractUserData(iframeSrc);
-                            console.log(`[${folderName}] [${proxyHost}] query_id của iframe: ${query_id}`);
+                            console.log(`[${folderName}] [${proxyHost}] query_id của iframe: ${query_id}`.green);
                             fs.appendFileSync(dataFilePath, `${query_id}\n`, 'utf-8');
+                            console.log(`[${folderName}] [${proxyHost}] Đã ghi query_id vào file: ${dataFilePath}`.green);
                             await browser.close();
-                            console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt cho profile: ${folderName}`);
+                            console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt cho profile: ${folderName}`.green);
                         }
                     }
                 } catch (error) {
-                    await reloadPage(folderName, proxyHost);
+                    await reloadPage(page,folderName, proxyHost);
                 }
             } else {
                 console.error(`[${folderName}] [${proxyHost}] Lỗi khác xảy ra:`, err);
@@ -514,7 +498,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 }
 
 const processProfile = async ({ folderName, proxy }, { url, elementSelector, dataFilePath, showBrowser }) => {
-    console.log(`[${folderName}] Bắt đầu xử lý profile với proxy: ${proxy}`);
+    console.log(`[${folderName}] Bắt đầu xử lý profile với proxy: ${proxy}`.bgMagenta);
     const retryLimit = 10;
     const head = Number(showBrowser) === 1 ? false : true;
 
@@ -527,7 +511,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
         page = result.page;
         proxyHost = result.proxyHost;
 
-        console.log(browser, page, proxyHost);
+        //console.log(browser, page, proxyHost);
 
         if (!browser || !page || !proxyHost) {
             console.error(`[${folderName}] Không thể kết nối với proxy.`);
@@ -537,7 +521,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
             if (browser && browser.isConnected()) {
                 try {
                     await browser.close();
-                    console.log(`[${folderName}] Đã đóng trình duyệt do lỗi kết nối proxy.`);
+                    console.log(`[${folderName}] Đã đóng trình duyệt do lỗi kết nối proxy.`.bgRed);
                 } catch (closeError) {
                     console.error(`[${folderName}] Lỗi khi đóng trình duyệt: ${closeError.message}`);
                 }
@@ -559,7 +543,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
         if (browser && browser.isConnected()) {
             try {
                 await browser.close();
-                console.log(`[${folderName}] Đã đóng trình duyệt do lỗi.`);
+                console.log(`[${folderName}] Đã đóng trình duyệt do lỗi.`.bgRed);
             } catch (closeError) {
                 console.error(`[${folderName}] Lỗi khi đóng trình duyệt: ${closeError.message}`);
             }
