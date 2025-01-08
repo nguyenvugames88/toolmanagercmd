@@ -292,18 +292,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
     } catch (error) {
         if (error.message.includes('Failed to launch the browser process')) {
             console.error(`[${folderName}] [${proxyHost}] Không thể khởi chạy trình duyệt:`, error.message);
-
-            if (retryCount < retryLimit) {
-                console.log(`[${folderName}] [${proxyHost}] Chờ 5 giây và thử lại lần ${retryCount + 1}...`);
-                await new Promise(resolve => setTimeout(resolve, 5000));
-
-                // Gọi lại chính hàm handleProfileWithProxy với retryCount tăng lên
-                return await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount + 1);
-            } else {
-                console.error(`[${folderName}] [${proxyHost}] Đã vượt quá số lần thử lại (${retryLimit}).`);
-                failedProfiles.push({ folderName, proxy });
-                return { browser: null, page: null, proxyHost: null };
-            }
+            logoutError.push(`Profile: ${folderName} - Lỗi profile cần tạo lại.`);        
 
         } else if (error.message.includes('net::ERR_INVALID_AUTH_CREDENTIALS')) {
             // Khi gặp lỗi "net::ERR_INVALID_AUTH_CREDENTIALS"
@@ -630,7 +619,6 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
         if (!browser || !page || !proxyHost) {
             console.error(`[${folderName}] Không thể kết nối với proxy.`);
             logoutError.push(`Profile: ${folderName} - Không thể kết nối với proxy.`);
-            
             // Close browser if it's opened before returning
             if (browser && browser.isConnected()) {
                 try {
