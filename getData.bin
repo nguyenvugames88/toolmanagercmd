@@ -92,7 +92,7 @@ async function reloadPage(page,folderName,proxyHost) {
     }    
 }
 
-async function retryProxy(folderName,proxyHost, proxyObj, retryLimit = 10) {
+async function retryProxy(folderName, proxyHost, proxyObj, retryLimit = 10) {
     let isProxyValid = false;
     let retryCount = 0;
 
@@ -118,7 +118,7 @@ async function retryProxy(folderName,proxyHost, proxyObj, retryLimit = 10) {
             const proxies = await loadProxyFromFile(proxyFilePath);
             if (proxies.length === 0) {
                 console.error(`[${folderName}] [${proxyHost}] Không có proxy nào trong file proxy.txt.`);
-                return;
+                return null;  // Trả về null nếu không có proxy trong file
             }
 
             // Chọn ngẫu nhiên một proxy từ danh sách
@@ -129,17 +129,18 @@ async function retryProxy(folderName,proxyHost, proxyObj, retryLimit = 10) {
             proxyObj = { host: randomProxy }; // Cập nhật đối tượng proxy với proxy mới
 
             // Tiến hành kiểm tra lại proxy với proxy mới
-            await retryProxy(folderName,proxyHost, proxyObj);  // Gọi lại hàm để thử lại
+            return await retryProxy(folderName, proxyHost, proxyObj, retryLimit);  // Gọi lại hàm và trả về kết quả mới
         } catch (error) {
             console.error(`[${folderName}] [${proxyHost}] Lỗi khi đọc proxy từ file:`, error);
+            return null; // Trả về null nếu có lỗi
         }
-
-        return;
     }
 
     // Tiến hành công việc khác nếu proxy hợp lệ
     console.log(`[${folderName}] [${proxyHost}] Đã sẵn sàng để tiếp tục.`.blue);
+    return proxyObj;  // Trả về proxyObj hợp lệ
 }
+
 
 async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) {
     const proxyParts = proxy.match(/^http:\/\/([^:]+):([^@]+)@([^:]+):(\d+)$/);
@@ -152,7 +153,19 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
     let proxyObj = { host: proxyHost, port: parseInt(proxyPort, 10), username: proxyUsername, password: proxyPassword };
 
     // Kiểm tra tính hợp lệ của proxy và thay đổi nếu cần
-    await retryProxy(folderName, proxyHost, proxyObj, retryLimit);
+    const updatedProxy = await retryProxy(folderName, proxyHost, proxyObj, retryLimit);
+
+    if (updatedProxy) {
+        // Nếu proxy được cập nhật thành công, sử dụng proxy mới
+        proxyObj = updatedProxy;
+        proxyHost = updatedProxy.host; // Cập nhật lại proxyHost nếu cần
+        proxyPort = updatedProxy.port;
+        proxyUsername = updatedProxy.username;
+        proxyPassword= updatedProxy.password
+    } else {
+        // Nếu không có proxy hợp lệ, return với giá trị null
+        return { browser: null, page: null, proxyHost: null };
+    }
 
     const userDataPath = path.join(__dirname, 'profiles', folderName);
     if (!fs.existsSync(userDataPath)) {
@@ -499,7 +512,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 
 const processProfile = async ({ folderName, proxy }, { url, elementSelector, dataFilePath, showBrowser }) => {
     console.log(`[${folderName}] Bắt đầu xử lý profile với proxy: ${proxy}`.bgMagenta);
-    const retryLimit = 10;
+    const retryLimit = 5;
     const head = Number(showBrowser) === 1 ? false : true;
 
     let browser, page, proxyHost; // Declare browser, page, and proxyHost variables
@@ -534,7 +547,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
         // Proceed with iframe detection
         await processIframeDetection(browser, page, folderName, proxyHost, elementSelector, dataFilePath, logoutError);
         console.log(`[${folderName}] Đã hoàn thành quá trình xử lý iframe.`.bgGreen);
-
+        countProfile++;
     } catch (error) {
         console.error(`[${folderName}] Xảy ra lỗi khi xử lý profile:`, error);
         logoutError.push(`Profile: ${folderName} - Lỗi: ${error.message}`);
