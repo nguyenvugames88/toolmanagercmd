@@ -136,7 +136,7 @@ async function retryProxy(folderName, proxyHost, proxyObj, retryLimit = 10) {
         console.error(`[${folderName}] [${proxyHost}] Proxy không hợp lệ sau ${retryLimit} lần thử. Dừng xử lý profile.`);
 
         // Đọc proxy từ file nếu proxy không hợp lệ
-        const proxyFilePath = path.join(__dirname, 'proxy.txt');
+        const proxyFilePath = path.join('proxy.txt');
         try {
             const proxies = await loadProxyFromFile(proxyFilePath);
             if (proxies.length === 0) {
@@ -592,7 +592,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 
 const processProfile = async ({ folderName, proxy }, { url, elementSelector, dataFilePath, showBrowser }) => {
     console.log(`[${folderName}] Bắt đầu xử lý profile với proxy: ${proxy}`.bgMagenta);
-    const retryLimit = 5;
+    const retryLimit = 3;
     const head = Number(showBrowser) === 1 ? false : true;
 
     let browser, page, proxyHost; // Declare browser, page, and proxyHost variables
