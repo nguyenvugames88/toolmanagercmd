@@ -269,7 +269,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
         console.log(`[${folderName}] [${proxyHost}] Xử lý thành công!`);
 
         // Trả về browser và page sau khi xử lý xong
-        return { browser, page };
+        return { browser, page, proxyHost };
 
     } catch (error) {
         if (error.message.includes('Failed to launch the browser process')) {
@@ -518,16 +518,33 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
     const retryLimit = 10;
     const head = Number(showBrowser) === 1 ? false : true;
 
+    let browser, page, proxyHost; // Declare browser, page, and proxyHost variables
+
     try {
         // Destructure to get proxyHost from handleProfileWithProxy return
-        const { browser, page, proxyHost } = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
-        console.log(browser,page,proxyHost)
+        const result = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
+        browser = result.browser;
+        page = result.page;
+        proxyHost = result.proxyHost;
+
+        console.log(browser, page, proxyHost);
+
         if (!browser || !page || !proxyHost) {
             console.error(`[${folderName}] Không thể kết nối với proxy.`);
             logoutError.push(`Profile: ${folderName} - Không thể kết nối với proxy.`);
-            return;
+            
+            // Close browser if it's opened before returning
+            if (browser && browser.isConnected()) {
+                try {
+                    await browser.close();
+                    console.log(`[${folderName}] Đã đóng trình duyệt do lỗi kết nối proxy.`);
+                } catch (closeError) {
+                    console.error(`[${folderName}] Lỗi khi đóng trình duyệt: ${closeError.message}`);
+                }
+            }
+            return; // Early return if no proxy connection
         }
-        
+
         console.log(`[${folderName}] Đã kết nối với proxy thành công.`.green);
 
         // Proceed with iframe detection
@@ -536,9 +553,20 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
 
     } catch (error) {
         console.error(`[${folderName}] Xảy ra lỗi khi xử lý profile:`, error);
-        logoutError.push(`Profile: ${folderName} - Lỗi: ${err.message}`);
+        logoutError.push(`Profile: ${folderName} - Lỗi: ${error.message}`);
+
+        // Ensure browser is closed in case of error
+        if (browser && browser.isConnected()) {
+            try {
+                await browser.close();
+                console.log(`[${folderName}] Đã đóng trình duyệt do lỗi.`);
+            } catch (closeError) {
+                console.error(`[${folderName}] Lỗi khi đóng trình duyệt: ${closeError.message}`);
+            }
+        }
     }
 };
+
 
 
 async function retryFailedProfiles(failedProfiles,url, elementSelector,dataFilePath,theard,showBrowser) {
