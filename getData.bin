@@ -521,6 +521,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
     try {
         // Destructure to get proxyHost from handleProfileWithProxy return
         const { browser, page, proxyHost } = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
+        console.log(browser,page,proxyHost)
         if (!browser || !page || !proxyHost) {
             console.error(`[${folderName}] Không thể kết nối với proxy.`);
             logoutError.push(`Profile: ${folderName} - Không thể kết nối với proxy.`);
