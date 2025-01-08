@@ -149,7 +149,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
         return { browser: null, page: null, proxyHost: null }; // Return proxyHost as well// Trả về null nếu proxy không hợp lệ
     }
 
-    const [_, proxyUsername, proxyPassword, proxyHost, proxyPort] = proxyParts;
+    let  [_, proxyUsername, proxyPassword, proxyHost, proxyPort] = proxyParts;
     let proxyObj = { host: proxyHost, port: parseInt(proxyPort, 10), username: proxyUsername, password: proxyPassword };
 
     // Kiểm tra tính hợp lệ của proxy và thay đổi nếu cần
