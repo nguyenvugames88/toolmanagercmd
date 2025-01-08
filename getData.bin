@@ -302,9 +302,6 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
             } else {
                 console.error(`[${folderName}] [${proxyHost}] Đã vượt quá số lần thử lại (${retryLimit}).`);
                 failedProfiles.push({ folderName, proxy });
-                if (browser && browser.isConnected()) {
-                    await browser.close();
-                }
                 return { browser: null, page: null, proxyHost: null };
             }
 
