@@ -91,7 +91,30 @@ async function reloadPage(page,folderName,proxyHost) {
         console.error(`[${folderName}] [${proxyHost}]Lỗi khi reload hoặc kiểm tra dialog:`, error.message);
     }    
 }
+async function loadProxyFromFile(filePath) {
+    return new Promise((resolve, reject) => {
+        // Kiểm tra xem file có tồn tại không
+        fs.exists(filePath, (exists) => {
+            if (!exists) {
+                return reject(`File proxy không tồn tại: ${filePath}`);
+            }
 
+            // Đọc nội dung file
+            fs.readFile(filePath, 'utf-8', (err, data) => {
+                if (err) {
+                    return reject(`Lỗi khi đọc file: ${err.message}`);
+                }
+
+                // Chuyển đổi nội dung thành mảng các proxy
+                const proxies = data.split('\n')
+                    .map(line => line.trim()) // Loại bỏ khoảng trắng thừa
+                    .filter(line => line && /^http:\/\/([^:]+):([^@]+)@([^:]+):(\d+)$/.test(line)); // Kiểm tra proxy hợp lệ
+
+                resolve(proxies);
+            });
+        });
+    });
+}
 async function retryProxy(folderName, proxyHost, proxyObj, retryLimit = 10) {
     let isProxyValid = false;
     let retryCount = 0;
