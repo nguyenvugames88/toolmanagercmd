@@ -136,7 +136,7 @@ async function retryProxy(folderName, proxyHost, proxyObj, retryLimit = 10) {
         console.error(`[${folderName}] [${proxyHost}] Proxy không hợp lệ sau ${retryLimit} lần thử. Dừng xử lý profile.`);
 
         // Đọc proxy từ file nếu proxy không hợp lệ
-        const proxyFilePath = path.join('proxy.txt');
+        const proxyFilePath = path.join(__dirname, 'proxy.txt');
         try {
             const proxies = await loadProxyFromFile(proxyFilePath);
             if (proxies.length === 0) {
@@ -422,8 +422,12 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 try {
                     // Gõ "/start" vào div có id="editable-message-text"
                     console.log(`[${proxyHost}] Đang nhập "/start" vào div[id="editable-message-text"]...`);
-                    await page.type('div[id="editable-message-text"]', '/start');
-                    await page.keyboard.press('Enter'); // Nhấn Enter
+                    try {
+                        await page.type('div[id="editable-message-text"]', '/start');
+                        await page.keyboard.press('Enter');
+                    } catch (typeError) {
+                        console.error(`[${proxyHost}] Lỗi khi nhập "/start" hoặc nhấn Enter:`, typeError.message);
+                    }
         
                     // Chờ một chút trước khi tìm lại
                     console.log(`[${proxyHost}] Đợi một lát trước khi tìm lại phần tử "${elementSelector}"...`);
@@ -464,6 +468,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             break; // Thoát vòng lặp
                         } else {
                             console.error(`[${proxyHost}] Phần tử "${elementSelector}" vẫn không tìm thấy sau khi reload.`);
+                            logoutError.push(`Profile: ${folderName} - Phần tử "${elementSelector}" vẫn không tìm thấy`); // Lưu lỗi
                             if (browser && browser.isConnected()) {
                                 await browser.close();
                             }
@@ -506,6 +511,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     console.log(`[${folderName}] [${proxyHost}] Đã ghi query_id vào file: ${dataFilePath}`.green);
                     await browser.close();
                     console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt cho profile: ${folderName}`.green);
+                    countProfile++;
                 }
             } else {
                 console.log(`[${folderName}] [${proxyHost}] Iframe chưa xuất hiện. Quay lại click nút "Play".`);
@@ -562,6 +568,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             reloadAttempts++;
                             if (reloadAttempts >= maxReloads) {
                                 console.log(`[${folderName}] [${proxyHost}] Đã reload ${maxReloads} lần mà không thấy iframe. Thoát.`.bgRed);
+                                logoutError.push(`Profile: ${folderName} - Không tìm thấy Iframe.`);
                                 await browser.close();
                                 break;
                             }
@@ -573,6 +580,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] Đã ghi query_id vào file: ${dataFilePath}`.green);
                             await browser.close();
                             console.log(`[${folderName}] [${proxyHost}] Đã đóng trình duyệt cho profile: ${folderName}`.green);
+                            countProfile++;
                         }
                     }
                 } catch (error) {
@@ -625,7 +633,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
 
         // Proceed with iframe detection
         await processIframeDetection(browser, page, folderName, proxyHost, elementSelector, dataFilePath, logoutError);      
-        countProfile++;
+        
         console.log(`[${folderName}] Đã hoàn thành quá trình xử lý iframe thứ (${countProfile}).`.bgGreen);
     } catch (error) {
         console.error(`[${folderName}] Xảy ra lỗi khi xử lý profile:`, error);
