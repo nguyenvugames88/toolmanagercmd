@@ -386,12 +386,69 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 }
             }
 
-            console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
-            await page.waitForSelector(elementSelector, { visible: true });
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Thêm thời gian chờ trước khi click
-            console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
-            await page.click(elementSelector);
-
+            try {
+                console.log(`[${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
+                await page.waitForSelector(elementSelector, { visible: true });
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                console.log(`[${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+        
+                await page.click(elementSelector); // Thử click vào phần tử
+            } catch (error) {
+                console.error(`[${proxyHost}] Không tìm thấy phần tử "${elementSelector}".`, error.message);
+        
+                try {
+                    // Gõ "/start" vào div có id="editable-message-text"
+                    console.log(`[${proxyHost}] Đang nhập "/start" vào div[id="editable-message-text"]...`);
+                    await page.type('div[id="editable-message-text"]', '/start');
+                    await page.keyboard.press('Enter'); // Nhấn Enter
+        
+                    // Chờ một chút trước khi tìm lại
+                    console.log(`[${proxyHost}] Đợi một lát trước khi tìm lại phần tử "${elementSelector}"...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+        
+                    // Tìm lại phần tử
+                    console.log(`[${proxyHost}] Đang tìm lại phần tử "${elementSelector}"...`);
+                    await page.waitForSelector(elementSelector, { visible: true });
+                    console.log(`[${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+        
+                    await page.click(elementSelector); // Thử click lại
+                } catch (retryError) {
+                    console.error(`[${proxyHost}] Lỗi khi retry với phần tử "${elementSelector}":`, retryError.message);
+        
+                    // Reload trang nếu vẫn thất bại
+                    try {
+                        console.log(`[${proxyHost}] Đang reload trang...`);
+                        await page.reload({ waitUntil: 'networkidle0' }); // Đợi đến khi mạng ổn định
+        
+                        console.log(`[${proxyHost}] Đã reload trang. Đang tìm lại phần tử "${elementSelector}"...`);
+                        await page.waitForSelector(elementSelector, { visible: true, timeout: 5000 }); // Chờ thêm một chút để tìm phần tử
+        
+                        console.log(`[${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+                        await page.click(elementSelector); // Thử click sau reload
+                    } catch (reloadError) {
+                        console.error(`[${proxyHost}] Không tìm thấy phần tử "${elementSelector}" sau khi reload:`, reloadError.message);
+        
+                        // Kiểm tra nếu tồn tại phần tử với aria-label="Text not allowed"
+                        const textNotAllowedSelector = 'div[aria-label="Text not allowed"]';
+                        const isTextNotAllowed = await page.$(textNotAllowedSelector);
+        
+                        if (isTextNotAllowed) {
+                            console.error(`[${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
+                            logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`); // Lưu lỗi
+                            if (browser && browser.isConnected()) {
+                                await browser.close();
+                            }
+                            break; // Thoát vòng lặp
+                        } else {
+                            console.error(`[${proxyHost}] Phần tử "${elementSelector}" vẫn không tìm thấy sau khi reload.`);
+                            if (browser && browser.isConnected()) {
+                                await browser.close();
+                            }
+                            break; // Thoát vòng lặp
+                        }
+                    }
+                }
+            }
             // Chờ nút "Confirm"
             console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
             await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
