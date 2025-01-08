@@ -541,13 +541,12 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
             }
             return; // Early return if no proxy connection
         }
-
         console.log(`[${folderName}] Đã kết nối với proxy thành công.`.green);
 
         // Proceed with iframe detection
-        await processIframeDetection(browser, page, folderName, proxyHost, elementSelector, dataFilePath, logoutError);
-        console.log(`[${folderName}] Đã hoàn thành quá trình xử lý iframe.`.bgGreen);
+        await processIframeDetection(browser, page, folderName, proxyHost, elementSelector, dataFilePath, logoutError);      
         countProfile++;
+        console.log(`[${folderName}] Đã hoàn thành quá trình xử lý iframe thứ (${countProfile}).`.bgGreen);
     } catch (error) {
         console.error(`[${folderName}] Xảy ra lỗi khi xử lý profile:`, error);
         logoutError.push(`Profile: ${folderName} - Lỗi: ${error.message}`);
