@@ -454,7 +454,7 @@ async function runRef(page, linkRef) {
         }
 
         // Bước 5: Kiểm tra lại sau khi nhập liệu
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
         const updatedLinks = await page.$$('a[href]');
         for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
