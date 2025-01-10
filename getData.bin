@@ -405,52 +405,49 @@ async function checkLogout(page, folderName, proxyHost, logoutError, browser) {
     }
 }
     
-// Hàm nhấp chuột với kiểm tra thành công
-async function clickWithRetry(page, selector, folderName, proxyHost, maxRetries = 3) {
-    let retries = 0;
-    while (retries < maxRetries) {
-        try {
-            const element = await page.$(selector);
-            if (element) {
-                await element.click();
-                console.log(`[${folderName}] [${proxyHost}] Đã nhấp vào ${selector} thành công.`);
-                return true; // Thực hiện thành công
-            } else {
-                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy ${selector}.`);
-            }
-        } catch (error) {
-            console.error(`[${folderName}] [${proxyHost}] Lỗi khi nhấp vào ${selector}: ${error.message}`);
-        }
-        retries++;
-        await page.waitForTimeout(1000); // Chờ 1 giây trước khi thử lại
-    }
-    console.log(`[${folderName}] [${proxyHost}] Không thể nhấp vào ${selector} sau ${maxRetries} lần thử.`);
-    return false; // Thất bại sau nhiều lần thử
-}
-
 async function runRef(page, linkRef, folderName, proxyHost) {
     try {
         // Bước 1: Kiểm tra và nhấp vào nút Open menu
-        if (!(await clickWithRetry(page, 'button[aria-label="Open menu"]', folderName, proxyHost))) return false;
+        const menuButton = await page.$('button[aria-label="Open menu"]');
+        if (menuButton) {
+            console.log("Đã tìm thấy nút 'Open menu', tiến hành nhấp...");
+            await menuButton.click();
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } else {
+            console.log("Không tìm thấy nút 'Open menu'.");
+            return false;
+        }
 
         // Bước 2: Nhấp vào biểu tượng Saved Messages
-        if (!(await clickWithRetry(page, 'i.icon.icon-saved-messages', folderName, proxyHost))) return false;
+        const savedMessagesIcon = await page.$('i.icon.icon-saved-messages');
+        if (savedMessagesIcon) {
+            console.log("Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...");
+            await savedMessagesIcon.click();
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } else {
+            console.log("Không tìm thấy biểu tượng 'Saved Messages'.");
+            return false;
+        }
 
         // Bước 3: Kiểm tra tất cả phần tử <a> có thuộc tính href
-        const allLinks = await page.$$('a[href]');
+        const allLinks = await page.$$('a[href]'); // Lấy tất cả phần tử <a> có thuộc tính href
         for (const link of allLinks) {
-            const href = await page.evaluate(el => el.getAttribute('href'), link);
+            const href = await page.evaluate(el => el.getAttribute('href'), link); // Lấy giá trị href
             if (href === linkRef) {
-                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết có href khớp với linkRef: ${href}`);
-                await link.click();
+                console.log(`Đã tìm thấy liên kết có href khớp với linkRef: ${href}`);
+                await link.click(); // Nhấp vào liên kết nếu khớp
                 console.log("Đã nhấp vào liên kết thành công.");
 
                 // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
-                if (!(await clickWithRetry(page, 'button.Button.confirm-dialog-button.default.primary.text', folderName, proxyHost))) return false;
+                console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
+                await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ thêm 2 giây để đảm bảo nút đã tải
+                console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang click...`.blue);
+                await page.click('button.Button.confirm-dialog-button.default.primary.text');
 
                 // Bước 6: Kiểm tra sự tồn tại của iframe
                 console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`);
-                await page.waitForSelector('iframe', { timeout: 10000 });
+                await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                 const iframe = await page.$('iframe');
                 if (iframe) {
                     console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
@@ -476,33 +473,47 @@ async function runRef(page, linkRef, folderName, proxyHost) {
 
         // Chờ sau khi nhập liệu
         await new Promise(resolve => setTimeout(resolve, 5000));
-
-        // Tìm lại liên kết và nhấp
+        
         const updatedLinks = await page.$$('a[href]');
         for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
             if (href === linkRef) {
                 console.log(`Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
-                await link.click();
-                console.log("Đã nhấp vào liên kết thành công.");
 
-                // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
-                if (!(await clickWithRetry(page, 'button.Button.confirm-dialog-button.default.primary.text', folderName, proxyHost))) return false;
+                // Kiểm tra lại phần tử có tồn tại trong DOM trước khi nhấp
+                const isConnected = await page.evaluate(el => el.isConnected, link);
+                if (isConnected) {
+                    try {
+                        await link.click();
+                        console.log("Đã nhấp vào liên kết thành công.");
 
-                // Bước 6: Kiểm tra sự tồn tại của iframe
-                console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`);
-                await page.waitForSelector('iframe', { timeout: 10000 });
-                const iframe = await page.$('iframe');
-                if (iframe) {
-                    console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
+                        // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
+                        console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
+                        await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ thêm 2 giây để đảm bảo nút đã tải
+                        console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang click...`.blue);
+                        await page.click('button.Button.confirm-dialog-button.default.primary.text');
+
+                        // Bước 6: Kiểm tra sự tồn tại của iframe
+                        console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`);
+                        await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
+                        const iframe = await page.$('iframe');
+                        if (iframe) {
+                            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
+                        } else {
+                            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe.`);
+                        }
+
+                        return true;
+
+                    } catch (error) {
+                        console.error("Lỗi khi nhấp vào liên kết:", error.message);
+                    }
                 } else {
-                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe.`);
+                    console.warn("Phần tử đã bị xóa khỏi DOM trước khi nhấp.");
                 }
-
-                return true;
             }
         }
-
         console.log("Vẫn không tìm thấy liên kết sau khi nhập linkRef.");
         return false;
     } catch (error) {
@@ -510,6 +521,7 @@ async function runRef(page, linkRef, folderName, proxyHost) {
         return false;
     }
 }
+
 
 async function processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy,url,head,retryLimit) {
     let confirmClicked = false;
