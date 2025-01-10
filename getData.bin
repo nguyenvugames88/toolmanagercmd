@@ -69,7 +69,9 @@ const extractUserData = (url) => {
     }
     return result.replace(/%3D/g, '=').replace(/%25/g, '%').replace(/%26/g, '&') || '0';
 };
+
 let retryCount = 0;
+
 async function reloadPage(page,folderName,proxyHost) {
     try {
         
@@ -85,6 +87,7 @@ async function reloadPage(page,folderName,proxyHost) {
                 // Nếu reload thành công, đặt trạng thái isReloaded = true
                 isReloaded = true;
                 console.log(`[${folderName}] [${proxyHost}] Đã reload thành công và kiểm tra dialog.`.green);
+                return true
             } catch (error) {
                 console.error(`[Retry ${retryCount}] Lỗi khi reload: ${error.message}`);
     
@@ -99,9 +102,11 @@ async function reloadPage(page,folderName,proxyHost) {
     
         if (!isReloaded) {
             console.error(`[${folderName}] [${proxyHost}] Không thể reload trang sau nhiều lần thử.`);
+            return false;
         }
     } catch (error) {
         console.error(`[${folderName}] [${proxyHost}] Lỗi khi reload hoặc kiểm tra dialog:`, error.message);
+        return false;
     }    
 }
 // Hàm load danh sách proxy từ file
@@ -764,7 +769,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     }
                     // Reload trang nếu vẫn thất bại
                     try {
-                        await reloadPage(page,folderName,proxyHost);
+                        const reReload = await reloadPage(page,folderName,proxyHost);
+                        if(!reReload){
+                            logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
+                            break;
+                        }
         
                         console.log(`[${folderName}] [${proxyHost}] Đã reload trang. Đang tìm lại phần tử "${elementSelector}"...`);
                         await page.waitForSelector(elementSelector, { visible: true, timeout: 5000 }); // Chờ thêm một chút để tìm phần tử
@@ -853,7 +862,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 const iframeSrc = await page.evaluate(iframe => iframe.src, iframe);
                 if (!iframeSrc || iframeSrc.trim() === '') {
                     console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`.yellow);
-                    await reloadPage(page,folderName, proxyHost);
+                    const reReload = await reloadPage(page,folderName,proxyHost);
+                    if(!reReload){
+                        logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
+                        break;
+                    }
                     retryAttempts = 0;
                     reloadAttempts++;
                     if (reloadAttempts >= maxReloads) {
@@ -882,7 +895,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 retryAttempts++;
                 if (retryAttempts >= maxRetries) {
                     console.log(`[${folderName}] [${proxyHost}] Đã thử ${maxRetries} lần mà không thấy iframe. Reload lại trang.`.yellow);
-                    await reloadPage(page,folderName, proxyHost);
+                    const reReload = await reloadPage(page,folderName,proxyHost);
+                    if(!reReload){
+                        logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
+                        break;
+                    }
                     retryAttempts = 0;
                     reloadAttempts++;
                     if (reloadAttempts >= maxReloads) {
@@ -913,7 +930,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         const iframeSrc = await page.evaluate(iframe => iframe.src, iframe);
                         if (!iframeSrc || iframeSrc.trim() === '') {
                             console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`);
-                            await reloadPage(page,folderName, proxyHost);
+                            const reReload = await reloadPage(page,folderName,proxyHost);
+                            if(!reReload){
+                                logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
+                                break;
+                            }
                             retryAttempts = 0;
                             reloadAttempts++;
                             if (reloadAttempts >= maxReloads) {
@@ -934,7 +955,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         }
                     }
                 } catch (error) {
-                    await reloadPage(page,folderName, proxyHost);
+                    const reReload = await reloadPage(page,folderName,proxyHost);
+                    if(!reReload){
+                        logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
+                        break;
+                    }
                 }
             } else {
                 // Gọi hàm kiểm tra đăng xuất
