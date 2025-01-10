@@ -250,10 +250,10 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
                 '--disable-extensions',
                 '--no-sandbox',
                 '--disable-gpu',
-                '--window-size=800,800',
+                '--window-size=800,900',
                 '--force-device-scale-factor=0.5'
             ],
-            defaultViewport: { width: 800, height: 1000 }
+            defaultViewport: { width: 800, height: 800 }
         }), 3);
 
         const page = await browser.newPage();
