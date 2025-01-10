@@ -512,7 +512,8 @@ async function runRef(folderName, proxyHost, page, linkRef) {
                             }
 
                             // Kiểm tra sự tồn tại của iframe
-                            console.log(`[${folderName}] [${proxyHost}] Đang kiểm tra iframe...`);
+                            console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`);
+                            await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                             const iframe = await page.$('iframe');
                             if (iframe) {
                                 console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
@@ -610,7 +611,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                             
                             hasRunRef = true; // Đánh dấu đã chạy runRef
-                            const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, browser,proxy, url, head, retryLimit);;
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
                                 browser = newBrowser;
@@ -739,7 +740,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                         console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                                         
                                         hasRunRef = true; // Đánh dấu đã chạy runRef
-                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, browser,proxy, url, head, retryLimit);;
+                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                                         if (newBrowser && newPage) {
                                             // Gán trực tiếp vào biến browser và page hiện tại
                                             browser = newBrowser;
