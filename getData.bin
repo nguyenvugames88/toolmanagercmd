@@ -459,21 +459,7 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                     } catch {
                         console.log(`[${folderName}] [${proxyHost}] Không tìm thấy nút "Confirm".`.red);
                     }
-
-                    // Kiểm tra sự tồn tại của iframe
-                    console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
-                    await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
-                    const iframe = await page.$('iframe');
-                    if (iframe) {
-                        console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
-                        await new Promise(resolve => setTimeout(resolve, 10000));
-                        return true;
-                    } else {
-                        console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
-                        await page.waitForSelector(elementSelector, { visible: true });
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
-
+                    try{
                         console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
                         await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                         const iframe = await page.$('iframe');
@@ -484,7 +470,32 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                         } else {
                             console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
                         }
-                    }
+                    }catch{
+                        try{
+                            console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
+                            await page.waitForSelector(elementSelector, { visible: true });
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+                            try{
+                                console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
+                                await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
+                                const iframe = await page.$('iframe');
+                                if (iframe) {
+                                    console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    return true;
+                                } else {
+                                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                                }
+                            }catch{
+                                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                            }
+                            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                        }catch{
+                            console.error(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử "${elementSelector}".`, error.message);
+                            return false;
+                        }                      
+                    }                  
                 }
                 console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe sau 3 lần thử.`.bgRed);
                 return false;
@@ -526,20 +537,7 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                                 console.log(`[${folderName}] [${proxyHost}] Không tìm thấy nút "Confirm".`.red);
                             }
 
-                            // Kiểm tra sự tồn tại của iframe
-                            console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
-                            await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
-                            const iframe = await page.$('iframe');
-                            if (iframe) {
-                                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
-                                await new Promise(resolve => setTimeout(resolve, 10000));
-                                return true;
-                            } else {
-                                console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
-                                await page.waitForSelector(elementSelector, { visible: true });
-                                await new Promise(resolve => setTimeout(resolve, 2000));
-                                console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
-                                
+                            try{
                                 console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
                                 await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                                 const iframe = await page.$('iframe');
@@ -550,7 +548,32 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                                 } else {
                                     console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
                                 }
-                            }
+                            }catch{
+                                try{
+                                    console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
+                                    await page.waitForSelector(elementSelector, { visible: true });
+                                    await new Promise(resolve => setTimeout(resolve, 2000));
+                                    console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+                                    try{
+                                        console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
+                                        await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
+                                        const iframe = await page.$('iframe');
+                                        if (iframe) {
+                                            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                                            await new Promise(resolve => setTimeout(resolve, 10000));
+                                            return true;
+                                        } else {
+                                            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                                        }
+                                    }catch{
+                                        console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                                    }
+                                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                                }catch{
+                                    console.error(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử "${elementSelector}".`, error.message);
+                                    return false;
+                                }                              
+                            }                  
                         }
                         console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe sau 3 lần thử.`.red);
                         return false;
