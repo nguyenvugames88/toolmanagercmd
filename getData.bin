@@ -251,7 +251,8 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                 '--no-sandbox',
                 '--disable-gpu',
                 '--window-size=800,900',
-                '--force-device-scale-factor=0.5'
+                '--force-device-scale-factor=0.5',
+                '--disable-session-crashed-bubble', // Tắt thông báo "Restore pages?"
             ],
             defaultViewport: { width: 800, height: 800 }
         }), 3);
@@ -333,10 +334,11 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                         '--disable-extensions',
                         '--no-sandbox',
                         '--disable-gpu',
-                        '--window-size=800,800',
-                        '--force-device-scale-factor=0.5'
+                        '--window-size=800,900',
+                        '--force-device-scale-factor=0.5',
+                        '--disable-session-crashed-bubble', // Tắt thông báo "Restore pages?"
                     ],
-                    defaultViewport: { width: 800, height: 700 }
+                    defaultViewport: { width: 800, height: 800 }
                 }), 3);
 
                 console.log(`[${folderName}] [${proxyHost}] Đã mở lại trình duyệt sau khi gặp lỗi xác thực proxy.`.blue);
