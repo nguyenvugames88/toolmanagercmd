@@ -428,7 +428,8 @@ async function runRef(page, linkRef, folderName, proxyHost) {
             console.log("Không tìm thấy biểu tượng 'Saved Messages'.");
             return false;
         }
-
+        
+        await new Promise(resolve => setTimeout(resolve, 5000));
         // Bước 3: Kiểm tra tất cả phần tử <a> có thuộc tính href
         const allLinks = await page.$$('a[href]'); // Lấy tất cả phần tử <a> có thuộc tính href
         for (const link of allLinks) {
@@ -561,31 +562,52 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 
             if (isTextNotAllowed) {
                 console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
-                if (linkRef){
-                // Chỉ chạy runRef nếu chưa từng chạy
+            
+                if (linkRef) {
+                    // Chỉ chạy runRef nếu chưa từng chạy
                     if (!hasRunRef) {
-                        await runRef(page, linkRef);
-                        hasRunRef = true; // Đánh dấu đã chạy
+                        const runResult = await runRef(page, linkRef);
+            
+                        if (runResult) {
+                            // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
+                            console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
+                            
+                            // Đóng trình duyệt nếu còn kết nối
+                            if (browser && browser.isConnected()) {
+                                await browser.close();
+                            }
+            
+                            // Thực hiện lại hàm handleProfileWithProxy nếu cần
+                            await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
+                            hasRunRef = true; // Đánh dấu đã chạy runRef
+                        } else {
+                            // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
+                            console.error(`[${folderName}] [${proxyHost}] Lỗi khi chạy runRef.`);
+                            
+                            // Lưu lỗi vào danh sách logoutError
+                            logoutError.push(`Profile: ${folderName} - Lỗi khi chạy Ref cho Telegram này`);
+                            
+                            // Đóng trình duyệt lần cuối nếu còn kết nối
+                            if (browser && browser.isConnected()) {
+                                await browser.close();
+                            }
+            
+                            break; // Thoát vòng lặp nếu runRef không thành công
+                        }
                     }
-
-                    // Đóng trình duyệt nếu còn kết nối
-                    if (browser && browser.isConnected()) {
-                        await browser.close();
-                    }
-
-                    // Thực hiện lại hàm handleProfileWithProxy nếu cần
-                    await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
                 }
+            
                 // Lưu lỗi vào danh sách logoutError
                 logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`);
-
+            
                 // Đóng trình duyệt lần cuối nếu còn kết nối
                 if (browser && browser.isConnected()) {
                     await browser.close();
                 }
-
+            
                 break; // Thoát vòng lặp
             }
+            
 
             try {
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử button[class="Button tiny primary fluid has-ripple"]...`);
