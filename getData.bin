@@ -497,6 +497,46 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 break; // Thoát vòng lặp
             }
 
+            // Gọi hàm kiểm tra đăng xuất
+            const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+            if (isLoggedOut) {
+                break; // Thoát vòng lặp nếu đã đăng xuất
+            }
+
+            // Kiểm tra nếu tồn tại phần tử với aria-label="Text not allowed"
+            const textNotAllowedSelector = 'div[aria-label="Text not allowed"]';
+            const isTextNotAllowed = await page.$(textNotAllowedSelector);
+
+            // Biến toàn cục hoặc đặt trong phạm vi cần thiết để kiểm soát việc chạy runRef
+
+            if (isTextNotAllowed) {
+                console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
+                if (linkRef){
+                // Chỉ chạy runRef nếu chưa từng chạy
+                    if (!hasRunRef) {
+                        await runRef(page, linkRef);
+                        hasRunRef = true; // Đánh dấu đã chạy
+                    }
+
+                    // Đóng trình duyệt nếu còn kết nối
+                    if (browser && browser.isConnected()) {
+                        await browser.close();
+                    }
+
+                    // Thực hiện lại hàm handleProfileWithProxy nếu cần
+                    await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
+                }
+                // Lưu lỗi vào danh sách logoutError
+                logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`);
+
+                // Đóng trình duyệt lần cuối nếu còn kết nối
+                if (browser && browser.isConnected()) {
+                    await browser.close();
+                }
+
+                break; // Thoát vòng lặp
+            }
+
             try {
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử button[class="Button tiny primary fluid has-ripple"]...`);
                 await page.waitForSelector('button[class="Button tiny primary fluid has-ripple"]', { visible: true, timeout: 5000 });
@@ -883,11 +923,11 @@ const run = async () => {
             console.log('Không có lỗi nào cần ghi ra file.');
         }
         console.log(`Hoàn thành ${countProfile} profile.`);
-        await new Promise(resolve => setTimeout(resolve, 5000)); 
+        await new Promise(resolve => setTimeout(resolve, 20000)); 
         process.exit(0); // Thoát chương trình
     }catch(error) {
         console.error(` Lỗi với": `, error.message);
-        await new Promise(resolve => setTimeout(resolve, 5000)); 
+        await new Promise(resolve => setTimeout(resolve, 20000)); 
         process.exit(0); // Thoát chương trình
     }
 };
