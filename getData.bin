@@ -69,11 +69,11 @@ const extractUserData = (url) => {
     }
     return result.replace(/%3D/g, '=').replace(/%25/g, '%').replace(/%26/g, '&') || '0';
 };
-
+let retryCount = 0;
 async function reloadPage(page,folderName,proxyHost) {
     try {
-        let retryCount = 0;
-        const maxRetries = 10; // Số lần thử reload tối đa
+        
+        const maxRetries = 5; // Số lần thử reload tối đa
         let isReloaded = false;
     
         while (!isReloaded && retryCount < maxRetries) {
@@ -756,8 +756,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     }
                     // Reload trang nếu vẫn thất bại
                     try {
-                        console.log(`[${folderName}] [${proxyHost}] Đang reload trang...`.yellow);
-                        await page.reload({ waitUntil: 'networkidle0' }); // Đợi đến khi mạng ổn định
+                        await reloadPage(page,folderName,proxyHost);
         
                         console.log(`[${folderName}] [${proxyHost}] Đã reload trang. Đang tìm lại phần tử "${elementSelector}"...`);
                         await page.waitForSelector(elementSelector, { visible: true, timeout: 5000 }); // Chờ thêm một chút để tìm phần tử
