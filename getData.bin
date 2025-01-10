@@ -7,6 +7,7 @@ const async = require('async');
 const colors = require('colors');
 
 let countProfile = 0
+let hasRunRef = false; 
 const MAX_PARALLEL_PROFILES = 10; // Giới hạn số profile chạy đồng thời
 
 // Hàm sleep để tạm dừng
@@ -72,7 +73,7 @@ const extractUserData = (url) => {
 async function reloadPage(page,folderName,proxyHost) {
     try {
         let retryCount = 0;
-        const maxRetries = 5; // Số lần thử reload tối đa
+        const maxRetries = 10; // Số lần thử reload tối đa
         let isReloaded = false;
     
         while (!isReloaded && retryCount < maxRetries) {
@@ -383,8 +384,96 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
     }
 }
 
+async function checkLogout(page, folderName, proxyHost, logoutError, browser) {
+    try {
+        // Kiểm tra xem có phần tử tiêu đề 'h1' hay không
+        const loginElement = await page.$('h1');
+        if (loginElement) {
+            const textContent = await page.evaluate(element => element.textContent, loginElement);
+            // Kiểm tra nội dung nếu chứa 'Log in to Telegram by QR Code'
+            if (textContent.includes('Log in to Telegram by QR Code')) {
+                console.log(`[${folderName}] [${proxyHost}] Đã đăng xuất khỏi Telegram. Chuyển qua profile khác.`.bgRed);
+                logoutError.push(`Profile: ${folderName} - Đã đăng xuất khỏi Telegram`);
+                await browser.close(); // Đóng trình duyệt
+                return true; // Trả về true để báo rằng đã đăng xuất
+            }
+        }
+        return false; // Không có dấu hiệu đăng xuất
+    } catch (error) {
+        console.error(`[${folderName}] [${proxyHost}] Lỗi khi kiểm tra đăng xuất:`, error);
+        return true; // Trả về true trong trường hợp có lỗi để đảm bảo không tiếp tục xử lý profile
+    }
+}
+    
+async function runRef(page, linkRef) {
+    try {
+        // Bước 1: Kiểm tra và nhấp vào nút Open menu
+        const menuButton = await page.$('button[aria-label="Open menu"]');
+        if (menuButton) {
+            console.log("Đã tìm thấy nút 'Open menu', tiến hành nhấp...");
+            await menuButton.click();
+            await page.waitForTimeout(500);
+        } else {
+            console.log("Không tìm thấy nút 'Open menu'.");
+            return false;
+        }
 
-async function processIframeDetection(browser, page, folderName, proxyHost, elementSelector, dataFilePath, logoutError) {
+        // Bước 2: Nhấp vào biểu tượng Saved Messages
+        const savedMessagesIcon = await page.$('i.icon.icon-saved-messages');
+        if (savedMessagesIcon) {
+            console.log("Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...");
+            await savedMessagesIcon.click();
+            await page.waitForTimeout(500);
+        } else {
+            console.log("Không tìm thấy biểu tượng 'Saved Messages'.");
+            return false;
+        }
+
+        // Bước 3: Kiểm tra tất cả phần tử <a> có thuộc tính href
+        const allLinks = await page.$$('a[href]'); // Lấy tất cả phần tử <a> có thuộc tính href
+        for (const link of allLinks) {
+            const href = await page.evaluate(el => el.getAttribute('href'), link); // Lấy giá trị href
+            if (href === linkRef) {
+                console.log(`Đã tìm thấy liên kết có href khớp với linkRef: ${href}`);
+                await link.click(); // Nhấp vào liên kết nếu khớp
+                console.log("Đã nhấp vào liên kết thành công.");
+                return true;
+            }
+        }
+
+        // Bước 4: Nếu không tìm thấy liên kết, nhập linkRef vào ô chỉnh sửa
+        const messageInput = await page.$('div[id="editable-message-text"]');
+        if (messageInput) {
+            console.log("Không tìm thấy liên kết. Tiến hành nhập linkRef vào ô văn bản...");
+            await messageInput.type(linkRef, { delay: 50 });
+            await page.keyboard.press('Enter');
+            console.log("Đã nhập linkRef và nhấn Enter.");
+        } else {
+            console.log("Không tìm thấy ô nhập văn bản.");
+            return false;
+        }
+
+        // Bước 5: Kiểm tra lại sau khi nhập liệu
+        await page.waitForTimeout(1000);
+        const updatedLinks = await page.$$('a[href]');
+        for (const link of updatedLinks) {
+            const href = await page.evaluate(el => el.getAttribute('href'), link);
+            if (href === linkRef) {
+                console.log(`Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
+                await link.click();
+                console.log("Đã nhấp vào liên kết thành công.");
+                return true;
+            }
+        }
+
+        console.log("Vẫn không tìm thấy liên kết sau khi nhập linkRef.");
+        return false;
+    } catch (error) {
+        console.error("Lỗi trong quá trình thực hiện runRef:", error);
+        return false;
+    }
+}
+async function processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy,url,head,retryLimit) {
     let confirmClicked = false;
     let iframeDetected = false;
     let retryAttempts = 0;
@@ -415,6 +504,12 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]! Đang click...`.blue);
                 await page.click('button[class="Button tiny primary fluid has-ripple"]');
             } catch (error) {
+                // Gọi hàm kiểm tra đăng xuất
+                const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                if (isLoggedOut) {
+                    break; // Thoát vòng lặp nếu đã đăng xuất
+                }
+
                 if (error.name === 'TimeoutError') {
                     console.log(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]. Tiếp tục.`.yellow); 
                 } else {
@@ -431,6 +526,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 await page.click(elementSelector); // Thử click vào phần tử
             } catch (error) {
                 console.error(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử "${elementSelector}".`, error.message);
+                // Gọi hàm kiểm tra đăng xuất
+                const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                if (isLoggedOut) {
+                    break; // Thoát vòng lặp nếu đã đăng xuất
+                }
         
                 try {
                     // Gõ "/start" vào div có id="editable-message-text"
@@ -454,7 +554,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     await page.click(elementSelector); // Thử click lại
                 } catch (retryError) {
                     console.error(`[${folderName}] [${proxyHost}] Lỗi khi retry với phần tử "${elementSelector}":`, retryError.message);
-        
+                    // Gọi hàm kiểm tra đăng xuất
+                    const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                    if (isLoggedOut) {
+                        break; // Thoát vòng lặp nếu đã đăng xuất
+                    }
                     // Reload trang nếu vẫn thất bại
                     try {
                         console.log(`[${folderName}] [${proxyHost}] Đang reload trang...`);
@@ -467,19 +571,51 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         await page.click(elementSelector); // Thử click sau reload
                     } catch (reloadError) {
                         console.error(`[${folderName}] [${proxyHost}] Không tìm thấy phần tử "${elementSelector}" sau khi reload:`, reloadError.message);
-        
+                        
+                        // Gọi hàm kiểm tra đăng xuất
+                        const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                        if (isLoggedOut) {
+                            break; // Thoát vòng lặp nếu đã đăng xuất
+                        }
+
                         // Kiểm tra nếu tồn tại phần tử với aria-label="Text not allowed"
                         const textNotAllowedSelector = 'div[aria-label="Text not allowed"]';
                         const isTextNotAllowed = await page.$(textNotAllowedSelector);
         
+                        // Biến toàn cục hoặc đặt trong phạm vi cần thiết để kiểm soát việc chạy runRef
+
                         if (isTextNotAllowed) {
                             console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
-                            logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`); // Lưu lỗi
+                            if (linkRef){
+                            // Chỉ chạy runRef nếu chưa từng chạy
+                                if (!hasRunRef) {
+                                    await runRef(page, linkRef);
+                                    hasRunRef = true; // Đánh dấu đã chạy
+                                }
+
+                                // Đóng trình duyệt nếu còn kết nối
+                                if (browser && browser.isConnected()) {
+                                    await browser.close();
+                                }
+
+                                // Thực hiện lại hàm handleProfileWithProxy nếu cần
+                                await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
+                            }
+                            // Lưu lỗi vào danh sách logoutError
+                            logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`);
+
+                            // Đóng trình duyệt lần cuối nếu còn kết nối
                             if (browser && browser.isConnected()) {
                                 await browser.close();
                             }
+
                             break; // Thoát vòng lặp
                         } else {
+                            // Gọi hàm kiểm tra đăng xuất
+                            const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                            if (isLoggedOut) {
+                                break; // Thoát vòng lặp nếu đã đăng xuất
+                            }
                             console.error(`[${folderName}] [${proxyHost}] Phần tử "${elementSelector}" vẫn không tìm thấy sau khi reload.`);
                             logoutError.push(`Profile: ${folderName} - Phần tử "${elementSelector}" vẫn không tìm thấy`); // Lưu lỗi
                             if (browser && browser.isConnected()) {
@@ -528,19 +664,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 }
             } else {
                 console.log(`[${folderName}] [${proxyHost}] Iframe chưa xuất hiện. Quay lại click nút "Play".`);
-
-                // Kiểm tra đăng xuất
-                const loginElement = await page.$('h1');
-                if (loginElement) {
-                    const textContent = await page.evaluate(element => element.textContent, loginElement);
-                    if (textContent.includes('Log in to Telegram by QR Code')) {
-                        console.log(`[${folderName}] [${proxyHost}] Đã đăng xuất khỏi Telegram. Chuyển qua profile khác.`.bgRed);
-                        logoutError.push(`Profile: ${folderName} - Đã đăng xuất khỏi Telegram`);
-                        await browser.close();
-                        break;
-                    }
+                // Gọi hàm kiểm tra đăng xuất
+                const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                if (isLoggedOut) {
+                    break; // Thoát vòng lặp nếu đã đăng xuất
                 }
-
                 retryAttempts++;
                 if (retryAttempts >= maxRetries) {
                     console.log(`[${folderName}] [${proxyHost}] Đã thử ${maxRetries} lần mà không thấy iframe. Reload lại trang.`.yellow);
@@ -569,7 +697,6 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             break;
                         }
                     }
-
                     await page.waitForSelector('iframe', { timeout: 10000 });
                     const iframe = await page.$('iframe');
                     if (iframe) {
@@ -600,6 +727,11 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     await reloadPage(page,folderName, proxyHost);
                 }
             } else {
+                // Gọi hàm kiểm tra đăng xuất
+                const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
+                if (isLoggedOut) {
+                    break; // Thoát vòng lặp nếu đã đăng xuất
+                }                           
                 console.error(`[${folderName}] [${proxyHost}] Lỗi khác xảy ra:`, err);
                 logoutError.push(`Profile: ${folderName} - Lỗi: ${err.message}`);
                 if (browser && browser.isConnected()) {
@@ -611,7 +743,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
     }
 }
 
-const processProfile = async ({ folderName, proxy }, { url, elementSelector, dataFilePath, showBrowser }) => {
+const processProfile = async ({ folderName, proxy }, { url, elementSelector,linkRef, dataFilePath, showBrowser }) => {
     console.log(`[${folderName}] Bắt đầu xử lý profile với proxy: ${proxy}`.bgMagenta);
     const retryLimit = 3;
     const head = Number(showBrowser) === 1 ? false : true;
@@ -644,7 +776,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
         console.log(`[${folderName}] Đã kết nối với proxy thành công.`.green);
 
         // Proceed with iframe detection
-        await processIframeDetection(browser, page, folderName, proxyHost, elementSelector, dataFilePath, logoutError);      
+        await processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy, url, head, retryLimit);      
         
         console.log(`[${folderName}] Đã hoàn thành quá trình xử lý iframe thứ (${countProfile}).`.bgGreen);
     } catch (error) {
@@ -665,7 +797,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector, dat
 
 
 
-async function retryFailedProfiles(failedProfiles, url, elementSelector, dataFilePath, theard, showBrowser) {
+async function retryFailedProfiles(failedProfiles, url, elementSelector,linkRef, dataFilePath, theard, showBrowser) {
     if (failedProfiles.length > 0) {
         console.log(`Thử lại ${failedProfiles.length} profile gặp lỗi...`.bgMagenta);
 
@@ -675,7 +807,7 @@ async function retryFailedProfiles(failedProfiles, url, elementSelector, dataFil
                 async.eachLimit(failedProfiles, theard, async (profile) => {
                     try {
                         // Xử lý lại mỗi profile bị lỗi
-                        await processProfile(profile, { url, elementSelector, dataFilePath, showBrowser });
+                        await processProfile(profile, { url, elementSelector,linkRef, dataFilePath, showBrowser });
                         console.log(`[${profile.folderName}] [${profile.proxy}] Đã xử lý lại thành công`.blue);
                     } catch (err) {
                         console.error(`[${profile.folderName}] [${profile.proxy}] Xử lý lại gặp lỗi: ${err.message}`);
@@ -707,7 +839,7 @@ const run = async () => {
             return;
         }
 
-        const [nameTask, url, elementSelector, dataFilePath,theard,showBrowser] = gameData[0].split('|');
+        const [nameTask, url, elementSelector,linkRef, dataFilePath,theard,showBrowser] = gameData[0].split('|');
         //console.log('showBrowser: ',showBrowser)
         fs.writeFileSync(dataFilePath, '', 'utf-8'); // Xóa dữ liệu cũ
         const profiles = readProfilesFromFile();
@@ -717,7 +849,7 @@ const run = async () => {
         // Sử dụng async.eachLimit để giới hạn số lượng tác vụ chạy đồng thời
         await new Promise((resolve, reject) => {
             async.eachLimit(profiles, theard, async (profile) => {
-                await processProfile(profile, { url, elementSelector, dataFilePath,showBrowser });
+                await processProfile(profile, { url, elementSelector,linkRef, dataFilePath,showBrowser });
             }, (err) => {
                 if (err) {
                     reject(err);
@@ -727,7 +859,7 @@ const run = async () => {
             });
         });
 
-        await retryFailedProfiles(failedProfiles,url, elementSelector, dataFilePath,theard,showBrowser); 
+        await retryFailedProfiles(failedProfiles,url, elementSelector,linkRef, dataFilePath,theard,showBrowser); 
 
         if (logoutError.length > 0) {
             const bom = '\uFEFF'; // BOM cho UTF-8
