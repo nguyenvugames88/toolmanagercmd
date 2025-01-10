@@ -523,7 +523,7 @@ async function runRef(page, linkRef, folderName, proxyHost) {
     }
 }
 
-async function restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit) {
+async function restartBrowserAndRunRef(browser,folderName, proxy, url, head, retryLimit) {
     try {
         console.log(`[${folderName}] Đang khởi động lại trình duyệt...`);
         
@@ -593,7 +593,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                             
                             hasRunRef = true; // Đánh dấu đã chạy runRef
-                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit);
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, proxy, url, head, retryLimit);
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
                                 browser = newBrowser;
