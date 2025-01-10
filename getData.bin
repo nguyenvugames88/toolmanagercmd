@@ -523,6 +523,31 @@ async function runRef(page, linkRef, folderName, proxyHost) {
     }
 }
 
+async function restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit, retryCount) {
+    try {
+        console.log(`[${folderName}] Đang khởi động lại trình duyệt...`);
+        
+        // Đóng trình duyệt cũ nếu còn kết nối
+        if (browser && browser.isConnected()) {
+            await browser.close();
+            console.log(`[${folderName}] Trình duyệt cũ đã được đóng.`);
+        }
+
+        // Khởi động lại trình duyệt mới và xử lý lại với handleProfileWithProxy
+        const { browser: newBrowser, page: newPage } = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
+
+        if (newBrowser && newPage) {
+            console.log(`[${folderName}] Trình duyệt mới đã được mở thành công.`);
+            return { newBrowser, newPage };
+        } else {
+            console.error(`[${folderName}] Không thể mở trình duyệt mới.`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`[${folderName}] Lỗi khi khởi động lại trình duyệt:`, error);
+        return null;
+    }
+}
 
 async function processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy,url,head,retryLimit) {
     let confirmClicked = false;
@@ -567,17 +592,17 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
                             console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                             
-                            // Đóng trình duyệt nếu còn kết nối
-                            if (browser && browser.isConnected()) {
-                                await browser.close();
-                            }
-            
-                            // Thực hiện lại hàm handleProfileWithProxy nếu cần
-                            await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
                             hasRunRef = true; // Đánh dấu đã chạy runRef
-
-                            await new Promise(resolve => setTimeout(resolve, 20000));
-                            break;
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit, retryCount);
+                            if (newBrowser && newPage) {
+                                // Gán trực tiếp vào biến browser và page hiện tại
+                                browser = newBrowser;
+                                page = newPage;
+                            
+                                // Tiếp tục sử dụng browser và page mới
+                            } else {
+                                console.error(`[${folderName}] Không thể khởi động lại trình duyệt hoặc trang.`);
+                            }
 
                         } else {
                             // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
@@ -595,19 +620,8 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         }
                     }
                 }
-            
-                // Lưu lỗi vào danh sách logoutError
-                logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`);
-            
-                // Đóng trình duyệt lần cuối nếu còn kết nối
-                if (browser && browser.isConnected()) {
-                    await browser.close();
-                }
-            
-                break; // Thoát vòng lặp
             }
             
-
             try {
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử button[class="Button tiny primary fluid has-ripple"]...`);
                 await page.waitForSelector('button[class="Button tiny primary fluid has-ripple"]', { visible: true, timeout: 5000 });
