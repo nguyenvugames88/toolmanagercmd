@@ -1028,11 +1028,11 @@ const run = async () => {
             console.log('Không có lỗi nào cần ghi ra file.');
         }
         console.log(`Hoàn thành ${countProfile} profile.`);
-        await new Promise(resolve => setTimeout(resolve, 20000)); 
+        await new Promise(resolve => setTimeout(resolve, 5000)); 
         process.exit(0); // Thoát chương trình
     }catch(error) {
         console.error(` Lỗi với": `, error.message);
-        await new Promise(resolve => setTimeout(resolve, 20000)); 
+        await new Promise(resolve => setTimeout(resolve, 5000)); 
         process.exit(0); // Thoát chương trình
     }
 };
