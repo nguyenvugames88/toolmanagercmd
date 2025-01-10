@@ -79,17 +79,17 @@ async function reloadPage(page,folderName,proxyHost) {
         while (!isReloaded && retryCount < maxRetries) {
             try {
                 retryCount++;
-                console.log(`[${folderName}] [${proxyHost}][Retry ${retryCount}] Đang reload trang...`.bgYellow);
+                console.log(`[${folderName}] [${proxyHost}] [Retry ${retryCount}] Đang reload trang...`.bgYellow);
                 await page.reload({ waitUntil: 'networkidle0' }); // Đợi khi không còn kết nối mạng nào
     
                 // Nếu reload thành công, đặt trạng thái isReloaded = true
                 isReloaded = true;
-                console.log(`[${folderName}] [${proxyHost}]Đã reload thành công và kiểm tra dialog.`.green);
+                console.log(`[${folderName}] [${proxyHost}] Đã reload thành công và kiểm tra dialog.`.green);
             } catch (error) {
                 console.error(`[Retry ${retryCount}] Lỗi khi reload: ${error.message}`);
     
                 if (error.message.includes("Navigation timeout")) {
-                    console.log(`[${folderName}] [${proxyHost}]Navigation timeout xảy ra, đang đợi và thử lại...`.yellow);
+                    console.log(`[${folderName}] [${proxyHost}] Navigation timeout xảy ra, đang đợi và thử lại...`.yellow);
                     await new Promise(resolve => setTimeout(resolve, 5000)); // Đợi 5 giây trước khi thử lại
                 } else {
                     throw error; // Nếu là lỗi khác, thoát vòng lặp và xử lý
@@ -98,10 +98,10 @@ async function reloadPage(page,folderName,proxyHost) {
         }
     
         if (!isReloaded) {
-            console.error(`[${folderName}] [${proxyHost}]Không thể reload trang sau nhiều lần thử.`);
+            console.error(`[${folderName}] [${proxyHost}] Không thể reload trang sau nhiều lần thử.`);
         }
     } catch (error) {
-        console.error(`[${folderName}] [${proxyHost}]Lỗi khi reload hoặc kiểm tra dialog:`, error.message);
+        console.error(`[${folderName}] [${proxyHost}] Lỗi khi reload hoặc kiểm tra dialog:`, error.message);
     }    
 }
 // Hàm load danh sách proxy từ file
@@ -463,12 +463,12 @@ async function runRef(folderName, proxyHost,page, linkRef, folderName, proxyHost
         // Bước 4: Nếu không tìm thấy liên kết, nhập linkRef vào ô chỉnh sửa
         const messageInput = await page.$('div[id="editable-message-text"]');
         if (messageInput) {
-            console.log(`[${folderName}] [${proxyHost}]Không tìm thấy liên kết. Tiến hành nhập linkRef vào ô văn bản...`);
+            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy liên kết. Tiến hành nhập linkRef vào ô văn bản...`);
             await messageInput.type(linkRef, { delay: 50 });
             await page.keyboard.press('Enter');
-            console.log(`[${folderName}] [${proxyHost}]Đã nhập linkRef và nhấn Enter.`);
+            console.log(`[${folderName}] [${proxyHost}] Đã nhập linkRef và nhấn Enter.`);
         } else {
-            console.log(`[${folderName}] [${proxyHost}]Không tìm thấy ô nhập văn bản.`);
+            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy ô nhập văn bản.`);
             return false;
         }
 
@@ -479,14 +479,14 @@ async function runRef(folderName, proxyHost,page, linkRef, folderName, proxyHost
         for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
             if (href === linkRef) {
-                console.log(`[${folderName}] [${proxyHost}]Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
+                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
 
                 // Kiểm tra lại phần tử có tồn tại trong DOM trước khi nhấp
                 const isConnected = await page.evaluate(el => el.isConnected, link);
                 if (isConnected) {
                     try {
                         await link.click();
-                        console.log(`[${folderName}] [${proxyHost}]Đã nhấp vào liên kết thành công.`);
+                        console.log(`[${folderName}] [${proxyHost}] Đã nhấp vào liên kết thành công.`);
 
                         // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
                         console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
@@ -593,7 +593,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                             
                             hasRunRef = true; // Đánh dấu đã chạy runRef
-                            const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName,browser, proxy, url, head, retryLimit);
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, browser,proxy, url, head, retryLimit);;
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
                                 browser = newBrowser;
@@ -722,7 +722,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                         console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                                         
                                         hasRunRef = true; // Đánh dấu đã chạy runRef
-                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName,browser, proxy, url, head, retryLimit);
+                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, browser,proxy, url, head, retryLimit);;
                                         if (newBrowser && newPage) {
                                             // Gán trực tiếp vào biến browser và page hiện tại
                                             browser = newBrowser;
@@ -730,7 +730,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                         
                                             // Tiếp tục sử dụng browser và page mới
                                         } else {
-                                            console.error(`[${folderName}] Không thể khởi động lại trình duyệt hoặc trang.`);
+                                            console.error(`[${folderName}] [${proxyHost}] Không thể khởi động lại trình duyệt hoặc trang.`);
                                         }
             
                                     } else {
