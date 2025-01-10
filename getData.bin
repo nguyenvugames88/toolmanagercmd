@@ -253,7 +253,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
                 '--window-size=800,800',
                 '--force-device-scale-factor=0.5'
             ],
-            defaultViewport: { width: 800, height: 700 }
+            defaultViewport: { width: 800, height: 1000 }
         }), 3);
 
         const page = await browser.newPage();
@@ -283,7 +283,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,r
         await page.evaluate((folderName) => {
             const profileLabel = document.createElement('div');
             profileLabel.style.position = 'fixed';
-            profileLabel.style.top = '10px';
+            profileLabel.style.top = '100px';
             profileLabel.style.right = '10px';
             profileLabel.style.padding = '10px';
             profileLabel.style.backgroundColor = '#fff';
