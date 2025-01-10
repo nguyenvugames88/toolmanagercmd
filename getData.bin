@@ -441,15 +441,26 @@ async function runRef(folderName, proxyHost, page, linkRef) {
                 console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết: ${href}`);
                 linkFound = true;
 
-                // Thử click và tìm iframe tối đa 3 lần
+                // Thử click và thực hiện logic "Confirm" và kiểm tra iframe tối đa 3 lần
                 for (let attempt = 1; attempt <= 3; attempt++) {
                     console.log(`[${folderName}] [${proxyHost}] Nhấp vào liên kết (lần ${attempt})...`);
                     await link.click();
                     await new Promise(resolve => setTimeout(resolve, 5000));
 
+                    // Tìm và nhấp vào nút Confirm
+                    try {
+                        console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
+                        await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ thêm 2 giây để đảm bảo nút đã tải
+                        console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang nhấp...`);
+                        await page.click('button.Button.confirm-dialog-button.default.primary.text');
+                    } catch {
+                        console.log(`[${folderName}] [${proxyHost}] Không tìm thấy nút "Confirm".`);
+                    }
+
+                    // Kiểm tra sự tồn tại của iframe
                     console.log(`[${folderName}] [${proxyHost}] Đang kiểm tra iframe...`);
                     const iframe = await page.$('iframe');
-
                     if (iframe) {
                         console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
                         return true;
@@ -481,15 +492,26 @@ async function runRef(folderName, proxyHost, page, linkRef) {
                     if (href === linkRef) {
                         console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết sau khi nhập: ${href}`);
 
-                        // Thử click và tìm iframe tối đa 3 lần
+                        // Thử click và thực hiện logic "Confirm" và kiểm tra iframe tối đa 3 lần
                         for (let attempt = 1; attempt <= 3; attempt++) {
                             console.log(`[${folderName}] [${proxyHost}] Nhấp vào liên kết (lần ${attempt})...`);
                             await link.click();
                             await new Promise(resolve => setTimeout(resolve, 5000));
 
+                            // Tìm và nhấp vào nút Confirm
+                            try {
+                                console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
+                                await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
+                                await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ thêm 2 giây để đảm bảo nút đã tải
+                                console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang nhấp...`);
+                                await page.click('button.Button.confirm-dialog-button.default.primary.text');
+                            } catch {
+                                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy nút "Confirm".`);
+                            }
+
+                            // Kiểm tra sự tồn tại của iframe
                             console.log(`[${folderName}] [${proxyHost}] Đang kiểm tra iframe...`);
                             const iframe = await page.$('iframe');
-
                             if (iframe) {
                                 console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
                                 return true;
@@ -515,7 +537,6 @@ async function runRef(folderName, proxyHost, page, linkRef) {
         return false;
     }
 }
-
 
 async function restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit) {
     try {
