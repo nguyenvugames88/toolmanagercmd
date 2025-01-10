@@ -453,19 +453,29 @@ async function runRef(page, linkRef) {
             return false;
         }
 
-        // Bước 5: Kiểm tra lại sau khi nhập liệu
         await new Promise(resolve => setTimeout(resolve, 5000));
+        
         const updatedLinks = await page.$$('a[href]');
         for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
             if (href === linkRef) {
                 console.log(`Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
-                await link.click();
-                console.log("Đã nhấp vào liên kết thành công.");
-                return true;
+
+                // Kiểm tra lại phần tử có tồn tại trong DOM trước khi nhấp
+                const isConnected = await page.evaluate(el => el.isConnected, link);
+                if (isConnected) {
+                    try {
+                        await link.click();
+                        console.log("Đã nhấp vào liên kết thành công.");
+                        return true;
+                    } catch (error) {
+                        console.error("Lỗi khi nhấp vào liên kết:", error.message);
+                    }
+                } else {
+                    console.warn("Phần tử đã bị xóa khỏi DOM trước khi nhấp.");
+                }
             }
         }
-
         console.log("Vẫn không tìm thấy liên kết sau khi nhập linkRef.");
         return false;
     } catch (error) {
