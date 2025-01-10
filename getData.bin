@@ -619,7 +619,7 @@ async function restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url
     }
 }
 
-async function processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy,url,head,retryLimit) {
+async function processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy,url,head,retryLimit,hasRunRef,attemptStart) {
     let confirmClicked = false;
     let iframeDetected = false;
     let retryAttempts = 0;
@@ -655,14 +655,14 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             
                 if (linkRef != null) {
                     // Chỉ chạy runRef nếu chưa từng chạy
-                    if (!hasRunRef) {
+                    if (hasRunRef<4) {
                         const runResult = await runRef(folderName, proxyHost, elementSelector,page, linkRef);
             
                         if (runResult) {
                             // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
-                            console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`.green);
+                            console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`.bgGreen);
                             
-                            hasRunRef = true; // Đánh dấu đã chạy runRef
+                            hasRunRef++; // Đánh dấu đã chạy runRef
                             const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
@@ -688,7 +688,13 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             
                             break; // Thoát vòng lặp nếu runRef không thành công
                         }
+                    }else{
+                        console.error(`[${folderName}] [${proxyHost}] Đã chạy runRef rồi. Thoát`);
+                        break;
                     }
+                }else{
+                    console.error(`[${folderName}] [${proxyHost}] Lỗi Link Ref. Thoát`);
+                    break;
                 }
             }
             
@@ -730,13 +736,15 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 try {
                     // Gõ "/start" vào div có id="editable-message-text"
                     console.log(`[${folderName}] [${proxyHost}] Đang nhập "/start" vào div[id="editable-message-text"]...`);
-                    try {
-                        await page.type('div[id="editable-message-text"]', '/start');
-                        await page.keyboard.press('Enter');
-                    } catch (typeError) {
-                        console.error(`[${folderName}] [${proxyHost}] Lỗi khi nhập "/start" hoặc nhấn Enter:`, typeError.message);
+                    if (attemptStart < 3){
+                        try {
+                            await page.type('div[id="editable-message-text"]', '/start');
+                            await page.keyboard.press('Enter');
+                            attemptStart++
+                        } catch (typeError) {
+                            console.error(`[${folderName}] [${proxyHost}] Lỗi khi nhập "/start" hoặc nhấn Enter:`, typeError.message);
+                        }
                     }
-        
                     // Chờ một chút trước khi tìm lại
                     console.log(`[${folderName}] [${proxyHost}] Đợi một lát trước khi tìm lại phần tử "${elementSelector}"...`);
                     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -783,14 +791,14 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         
                             if (linkRef) {
                                 // Chỉ chạy runRef nếu chưa từng chạy
-                                if (!hasRunRef) {
+                                if (hasRunRef < 4) {
                                     const runResult = await runRef(folderName, proxyHost, elementSelector, page, linkRef);
                         
                                     if (runResult) {
                                         // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
-                                        console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`.green);
+                                        console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`.bgGreen);
                                         
-                                        hasRunRef = true; // Đánh dấu đã chạy runRef
+                                        hasRunRef++; // Đánh dấu đã chạy runRef
                                         const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                                         if (newBrowser && newPage) {
                                             // Gán trực tiếp vào biến browser và page hiện tại
@@ -816,7 +824,13 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                         
                                         break; // Thoát vòng lặp nếu runRef không thành công
                                     }
+                                }else{
+                                    console.error(`[${folderName}] [${proxyHost}] Đã chạy runRef rồi. Thoát`);
+                                    break;
                                 }
+                            }else{
+                                console.error(`[${folderName}] [${proxyHost}] Lỗi Link Ref. Thoát`);
+                                break;
                             }
                         }
                     }
@@ -945,7 +959,8 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector,link
     const head = Number(showBrowser) === 1 ? false : true;
 
     let browser, page, proxyHost; // Declare browser, page, and proxyHost variables
-    hasRunRef = false;
+    let hasRunRef = 0;
+    let attemptStart = 0; // Biến đếm số lần thử
     try {
         // Destructure to get proxyHost from handleProfileWithProxy return
         const result = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
@@ -972,7 +987,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector,link
         console.log(`[${folderName}] Đã kết nối với proxy thành công.`.green);
 
         // Proceed with iframe detection
-        await processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy, url, head, retryLimit);      
+        await processIframeDetection(browser, page, folderName, proxyHost, elementSelector,linkRef, dataFilePath, logoutError,proxy, url, head, retryLimit,hasRunRef,attemptStart);      
         
         console.log(`[${folderName}] [${proxyHost}] Đã hoàn thành quá trình xử lý iframe thứ (${countProfile}).`.bgGreen);
     } catch (error) {
