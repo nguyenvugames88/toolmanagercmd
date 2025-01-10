@@ -653,7 +653,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             if (isTextNotAllowed) {
                 console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
             
-                if (linkRef) {
+                if (linkRef != null) {
                     // Chỉ chạy runRef nếu chưa từng chạy
                     if (!hasRunRef) {
                         const runResult = await runRef(folderName, proxyHost, elementSelector,page, linkRef);
@@ -945,7 +945,7 @@ const processProfile = async ({ folderName, proxy }, { url, elementSelector,link
     const head = Number(showBrowser) === 1 ? false : true;
 
     let browser, page, proxyHost; // Declare browser, page, and proxyHost variables
-
+    hasRunRef = false;
     try {
         // Destructure to get proxyHost from handleProfileWithProxy return
         const result = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
