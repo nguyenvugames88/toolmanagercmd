@@ -412,7 +412,7 @@ async function runRef(page, linkRef) {
         if (menuButton) {
             console.log("Đã tìm thấy nút 'Open menu', tiến hành nhấp...");
             await menuButton.click();
-            await page.waitForTimeout(500);
+            await new Promise(resolve => setTimeout(resolve, 500));
         } else {
             console.log("Không tìm thấy nút 'Open menu'.");
             return false;
@@ -423,7 +423,7 @@ async function runRef(page, linkRef) {
         if (savedMessagesIcon) {
             console.log("Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...");
             await savedMessagesIcon.click();
-            await page.waitForTimeout(500);
+            await new Promise(resolve => setTimeout(resolve, 500));
         } else {
             console.log("Không tìm thấy biểu tượng 'Saved Messages'.");
             return false;
@@ -454,7 +454,7 @@ async function runRef(page, linkRef) {
         }
 
         // Bước 5: Kiểm tra lại sau khi nhập liệu
-        await page.waitForTimeout(1000);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         const updatedLinks = await page.$$('a[href]');
         for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
@@ -496,7 +496,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 }
                 break; // Thoát vòng lặp
             }
-
+            await new Promise(resolve => setTimeout(resolve, 5000));
             // Gọi hàm kiểm tra đăng xuất
             const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
             if (isLoggedOut) {
