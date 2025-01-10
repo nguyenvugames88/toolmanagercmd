@@ -580,7 +580,9 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             // Thực hiện lại hàm handleProfileWithProxy nếu cần
                             await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
                             hasRunRef = true; // Đánh dấu đã chạy runRef
+                            await new Promise(resolve => setTimeout(resolve, 20000));
                             break;
+
                         } else {
                             // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
                             console.error(`[${folderName}] [${proxyHost}] Lỗi khi chạy runRef.`);
