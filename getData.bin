@@ -548,11 +548,6 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 break; // Thoát vòng lặp
             }
             await new Promise(resolve => setTimeout(resolve, 5000));
-            // Gọi hàm kiểm tra đăng xuất
-            const isLoggedOut = await checkLogout(page, folderName, proxyHost, logoutError, browser);
-            if (isLoggedOut) {
-                break; // Thoát vòng lặp nếu đã đăng xuất
-            }
 
             // Kiểm tra nếu tồn tại phần tử với aria-label="Text not allowed"
             const textNotAllowedSelector = 'div[aria-label="Text not allowed"]';
