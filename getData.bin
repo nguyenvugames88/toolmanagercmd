@@ -428,7 +428,7 @@ async function runRef(page, linkRef, folderName, proxyHost) {
             console.log("Không tìm thấy biểu tượng 'Saved Messages'.");
             return false;
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, 5000));
         // Bước 3: Kiểm tra tất cả phần tử <a> có thuộc tính href
         const allLinks = await page.$$('a[href]'); // Lấy tất cả phần tử <a> có thuộc tính href
@@ -580,6 +580,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             // Thực hiện lại hàm handleProfileWithProxy nếu cần
                             await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
                             hasRunRef = true; // Đánh dấu đã chạy runRef
+                            break;
                         } else {
                             // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
                             console.error(`[${folderName}] [${proxyHost}] Lỗi khi chạy runRef.`);
