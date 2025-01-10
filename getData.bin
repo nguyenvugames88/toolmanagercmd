@@ -405,7 +405,7 @@ async function checkLogout(page, folderName, proxyHost, logoutError, browser) {
     }
 }
     
-async function runRef(folderName, proxyHost,page, linkRef, folderName, proxyHost) {
+async function runRef(folderName, proxyHost, page, linkRef) {
     try {
         // Bước 1: Kiểm tra và nhấp vào nút Open menu
         const menuButton = await page.$('button[aria-label="Open menu"]');
@@ -421,107 +421,101 @@ async function runRef(folderName, proxyHost,page, linkRef, folderName, proxyHost
         // Bước 2: Nhấp vào biểu tượng Saved Messages
         const savedMessagesIcon = await page.$('i.icon.icon-saved-messages');
         if (savedMessagesIcon) {
-            console.log(`[${folderName}] [${proxyHost}]Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...`);
+            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...`);
             await savedMessagesIcon.click();
             await new Promise(resolve => setTimeout(resolve, 500));
         } else {
-            console.log(`[${folderName}] [${proxyHost}]Không tìm thấy biểu tượng 'Saved Messages'.`);
+            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy biểu tượng 'Saved Messages'.`);
             return false;
         }
 
         await new Promise(resolve => setTimeout(resolve, 5000));
-        // Bước 3: Kiểm tra tất cả phần tử <a> có thuộc tính href
-        const allLinks = await page.$$('a[href]'); // Lấy tất cả phần tử <a> có thuộc tính href
+
+        // Bước 3: Tìm và nhấp vào liên kết khớp với linkRef
+        let linkFound = false;
+        const allLinks = await page.$$('a[href]');
+
         for (const link of allLinks) {
-            const href = await page.evaluate(el => el.getAttribute('href'), link); // Lấy giá trị href
-            if (href === linkRef) {
-                console.log(`[${folderName}] [${proxyHost}]Đã tìm thấy liên kết có href khớp với linkRef: ${href}`);
-                await link.click(); // Nhấp vào liên kết nếu khớp
-                console.log(`[${folderName}] [${proxyHost}]Đã nhấp vào liên kết thành công.`);
-
-                // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
-                console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
-                await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ thêm 2 giây để đảm bảo nút đã tải
-                console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang click...`.blue);
-                await page.click('button.Button.confirm-dialog-button.default.primary.text');
-
-                // Bước 6: Kiểm tra sự tồn tại của iframe
-                console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`);
-                await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
-                const iframe = await page.$('iframe');
-                if (iframe) {
-                    console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
-                } else {
-                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe.`);
-                }
-
-                return true;
-            }
-        }
-
-        // Bước 4: Nếu không tìm thấy liên kết, nhập linkRef vào ô chỉnh sửa
-        const messageInput = await page.$('div[id="editable-message-text"]');
-        if (messageInput) {
-            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy liên kết. Tiến hành nhập linkRef vào ô văn bản...`);
-            await messageInput.type(linkRef, { delay: 50 });
-            await page.keyboard.press('Enter');
-            console.log(`[${folderName}] [${proxyHost}] Đã nhập linkRef và nhấn Enter.`);
-        } else {
-            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy ô nhập văn bản.`);
-            return false;
-        }
-
-        // Chờ sau khi nhập liệu
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        
-        const updatedLinks = await page.$$('a[href]');
-        for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
             if (href === linkRef) {
-                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
+                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết: ${href}`);
+                linkFound = true;
 
-                // Kiểm tra lại phần tử có tồn tại trong DOM trước khi nhấp
-                const isConnected = await page.evaluate(el => el.isConnected, link);
-                if (isConnected) {
-                    try {
-                        await link.click();
-                        console.log(`[${folderName}] [${proxyHost}] Đã nhấp vào liên kết thành công.`);
+                // Thử click và tìm iframe tối đa 3 lần
+                for (let attempt = 1; attempt <= 3; attempt++) {
+                    console.log(`[${folderName}] [${proxyHost}] Nhấp vào liên kết (lần ${attempt})...`);
+                    await link.click();
+                    await new Promise(resolve => setTimeout(resolve, 5000));
 
-                        // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
-                        console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
-                        await page.waitForSelector('button.Button.confirm-dialog-button.default.primary.text', { timeout: 5000 });
-                        await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ thêm 2 giây để đảm bảo nút đã tải
-                        console.log(`[${folderName}] [${proxyHost}] Tìm thấy nút "Confirm". Đang click...`.blue);
-                        await page.click('button.Button.confirm-dialog-button.default.primary.text');
+                    console.log(`[${folderName}] [${proxyHost}] Đang kiểm tra iframe...`);
+                    const iframe = await page.$('iframe');
 
-                        // Bước 6: Kiểm tra sự tồn tại của iframe
-                        console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`);
-                        await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
-                        const iframe = await page.$('iframe');
-                        if (iframe) {
-                            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
-                        } else {
-                            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe.`);
-                        }
-
+                    if (iframe) {
+                        console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
                         return true;
-
-                    } catch (error) {
-                        console.error(`[${folderName}] [${proxyHost}]Lỗi khi nhấp vào liên kết:`, error.message);
+                    } else {
+                        console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`);
                     }
-                } else {
-                    console.warn(`[${folderName}] [${proxyHost}]Phần tử đã bị xóa khỏi DOM trước khi nhấp.`);
                 }
+
+                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe sau 3 lần thử.`);
+                return false;
             }
         }
-        console.log(`[${folderName}] [${proxyHost}]Vẫn không tìm thấy liên kết sau khi nhập linkRef.`);
+
+        // Bước 4: Nếu không tìm thấy liên kết, nhập linkRef vào ô văn bản
+        if (!linkFound) {
+            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy liên kết khớp với linkRef. Tiến hành nhập linkRef vào ô chỉnh sửa...`);
+            const messageInput = await page.$('div[id="editable-message-text"]');
+            if (messageInput) {
+                await messageInput.type(linkRef, { delay: 50 });
+                await page.keyboard.press('Enter');
+                console.log(`[${folderName}] [${proxyHost}] Đã nhập linkRef và nhấn Enter.`);
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
+                // Lặp lại để tìm và nhấp vào liên kết sau khi nhập
+                const updatedLinks = await page.$$('a[href]');
+                for (const link of updatedLinks) {
+                    const href = await page.evaluate(el => el.getAttribute('href'), link);
+                    if (href === linkRef) {
+                        console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy liên kết sau khi nhập: ${href}`);
+
+                        // Thử click và tìm iframe tối đa 3 lần
+                        for (let attempt = 1; attempt <= 3; attempt++) {
+                            console.log(`[${folderName}] [${proxyHost}] Nhấp vào liên kết (lần ${attempt})...`);
+                            await link.click();
+                            await new Promise(resolve => setTimeout(resolve, 5000));
+
+                            console.log(`[${folderName}] [${proxyHost}] Đang kiểm tra iframe...`);
+                            const iframe = await page.$('iframe');
+
+                            if (iframe) {
+                                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`);
+                                return true;
+                            } else {
+                                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`);
+                            }
+                        }
+
+                        console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe sau 3 lần thử.`);
+                        return false;
+                    }
+                }
+            } else {
+                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy ô nhập văn bản.`);
+                return false;
+            }
+        }
+
+        console.log(`[${folderName}] [${proxyHost}] Vẫn không tìm thấy liên kết khớp với linkRef sau khi nhập.`);
         return false;
     } catch (error) {
-        console.error(`[${folderName}] [${proxyHost}]Lỗi trong quá trình thực hiện runRef:`, error);
+        console.error(`[${folderName}] [${proxyHost}] Lỗi trong quá trình thực hiện runRef:`, error);
         return false;
     }
 }
+
 
 async function restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit) {
     try {
@@ -715,7 +709,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             if (linkRef) {
                                 // Chỉ chạy runRef nếu chưa từng chạy
                                 if (!hasRunRef) {
-                                    const runResult = await runRef(folderName, proxyHost,page, linkRef);
+                                    const runResult = await runRef(folderName, proxyHost, page, linkRef);
                         
                                     if (runResult) {
                                         // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
