@@ -407,7 +407,7 @@ async function checkLogout(folderName, proxyHost, page,  logoutError, browser) {
     }
 }
     
-async function runRef(folderName, proxyHost, page, linkRef) {
+async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
     try {
         // Bước 1: Kiểm tra và nhấp vào nút Open menu
         const menuButton = await page.$('button[aria-label="Open menu"]');
@@ -461,16 +461,31 @@ async function runRef(folderName, proxyHost, page, linkRef) {
                     }
 
                     // Kiểm tra sự tồn tại của iframe
-                    console.log(`[${folderName}] [${proxyHost}] Đang kiểm tra iframe...`.yellow);
+                    console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
+                    await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                     const iframe = await page.$('iframe');
                     if (iframe) {
-                        console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`.green);
+                        console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                        await new Promise(resolve => setTimeout(resolve, 10000));
                         return true;
                     } else {
-                        console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                        console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
+                        await page.waitForSelector(elementSelector, { visible: true });
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+
+                        console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
+                        await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
+                        const iframe = await page.$('iframe');
+                        if (iframe) {
+                            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                            await new Promise(resolve => setTimeout(resolve, 10000));
+                            return true;
+                        } else {
+                            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                        }
                     }
                 }
-
                 console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe sau 3 lần thử.`.bgRed);
                 return false;
             }
@@ -516,16 +531,30 @@ async function runRef(folderName, proxyHost, page, linkRef) {
                             await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                             const iframe = await page.$('iframe');
                             if (iframe) {
-                                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe.`.green);
+                                console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                                await new Promise(resolve => setTimeout(resolve, 10000));
                                 return true;
                             } else {
-                                console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.yellow);
+                                console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
+                                await page.waitForSelector(elementSelector, { visible: true });
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                                console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử "${elementSelector}". Đang click...`.blue);
+                                
+                                console.log(`[${folderName}] [${proxyHost}] Chờ để kiểm tra iframe...`.yellow);
+                                await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
+                                const iframe = await page.$('iframe');
+                                if (iframe) {
+                                    console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    return true;
+                                } else {
+                                    console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
+                                }
                             }
                         }
-
                         console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe sau 3 lần thử.`.red);
                         return false;
-                    }
+                    }                 
                 }
             } else {
                 console.log(`[${folderName}] [${proxyHost}] Không tìm thấy ô nhập văn bản.`.red);
@@ -604,7 +633,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 if (linkRef) {
                     // Chỉ chạy runRef nếu chưa từng chạy
                     if (!hasRunRef) {
-                        const runResult = await runRef(folderName, proxyHost,page, linkRef);
+                        const runResult = await runRef(folderName, proxyHost, elementSelector,page, linkRef);
             
                         if (runResult) {
                             // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
@@ -733,7 +762,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             if (linkRef) {
                                 // Chỉ chạy runRef nếu chưa từng chạy
                                 if (!hasRunRef) {
-                                    const runResult = await runRef(folderName, proxyHost, page, linkRef);
+                                    const runResult = await runRef(folderName, proxyHost, elementSelector, page, linkRef);
                         
                                     if (runResult) {
                                         // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
