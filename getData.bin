@@ -177,7 +177,7 @@ async function retryProxy(folderName, proxyHost, proxyObj, retryLimit = 3) {
 
 
 
-async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit,retryCount) {
+async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) {
     const proxyParts = proxy.match(/^http:\/\/([^:]+):([^@]+)@([^:]+):(\d+)$/);
     if (!proxyParts) {
         console.error(`Proxy "${proxy}" không hợp lệ.`);
@@ -523,7 +523,7 @@ async function runRef(page, linkRef, folderName, proxyHost) {
     }
 }
 
-async function restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit, retryCount) {
+async function restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit) {
     try {
         console.log(`[${folderName}] Đang khởi động lại trình duyệt...`);
         
@@ -534,7 +534,7 @@ async function restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit,
         }
 
         // Khởi động lại trình duyệt mới và xử lý lại với handleProfileWithProxy
-        const { browser: newBrowser, page: newPage } = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
+        const { browser: newBrowser, page: newPage } = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
 
         if (newBrowser && newPage) {
             console.log(`[${folderName}] Trình duyệt mới đã được mở thành công.`);
@@ -593,7 +593,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                             
                             hasRunRef = true; // Đánh dấu đã chạy runRef
-                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit, retryCount);
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxy, url, head, retryLimit);
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
                                 browser = newBrowser;
@@ -727,7 +727,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                         }
                         
                                         // Thực hiện lại hàm handleProfileWithProxy nếu cần
-                                        await handleProfileWithProxy(folderName, proxy, url, head, retryLimit, retryCount);
+                                        await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
                                         hasRunRef = true; // Đánh dấu đã chạy runRef
             
                                         await new Promise(resolve => setTimeout(resolve, 20000));
