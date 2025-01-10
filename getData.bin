@@ -721,17 +721,17 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                         // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
                                         console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                                         
-                                        // Đóng trình duyệt nếu còn kết nối
-                                        if (browser && browser.isConnected()) {
-                                            await browser.close();
-                                        }
-                        
-                                        // Thực hiện lại hàm handleProfileWithProxy nếu cần
-                                        await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
                                         hasRunRef = true; // Đánh dấu đã chạy runRef
-            
-                                        await new Promise(resolve => setTimeout(resolve, 20000));
-                                        break;
+                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, proxy, url, head, retryLimit);
+                                        if (newBrowser && newPage) {
+                                            // Gán trực tiếp vào biến browser và page hiện tại
+                                            browser = newBrowser;
+                                            page = newPage;
+                                        
+                                            // Tiếp tục sử dụng browser và page mới
+                                        } else {
+                                            console.error(`[${folderName}] Không thể khởi động lại trình duyệt hoặc trang.`);
+                                        }
             
                                     } else {
                                         // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
@@ -749,16 +749,6 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                     }
                                 }
                             }
-                        
-                            // Lưu lỗi vào danh sách logoutError
-                            logoutError.push(`Profile: ${folderName} - Chưa Ref cho Telegram này`);
-                        
-                            // Đóng trình duyệt lần cuối nếu còn kết nối
-                            if (browser && browser.isConnected()) {
-                                await browser.close();
-                            }
-                        
-                            break; // Thoát vòng lặp
                         }
                     }
                 }
