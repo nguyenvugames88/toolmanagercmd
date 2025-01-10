@@ -405,27 +405,27 @@ async function checkLogout(page, folderName, proxyHost, logoutError, browser) {
     }
 }
     
-async function runRef(page, linkRef, folderName, proxyHost) {
+async function runRef(folderName, proxyHost,page, linkRef, folderName, proxyHost) {
     try {
         // Bước 1: Kiểm tra và nhấp vào nút Open menu
         const menuButton = await page.$('button[aria-label="Open menu"]');
         if (menuButton) {
-            console.log("Đã tìm thấy nút 'Open menu', tiến hành nhấp...");
+            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy nút 'Open menu', tiến hành nhấp...`);
             await menuButton.click();
             await new Promise(resolve => setTimeout(resolve, 500));
         } else {
-            console.log("Không tìm thấy nút 'Open menu'.");
+            console.log(`[${folderName}] [${proxyHost}] Không tìm thấy nút 'Open menu'.`);
             return false;
         }
 
         // Bước 2: Nhấp vào biểu tượng Saved Messages
         const savedMessagesIcon = await page.$('i.icon.icon-saved-messages');
         if (savedMessagesIcon) {
-            console.log("Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...");
+            console.log(`[${folderName}] [${proxyHost}]Đã tìm thấy biểu tượng 'Saved Messages', tiến hành nhấp...`);
             await savedMessagesIcon.click();
             await new Promise(resolve => setTimeout(resolve, 500));
         } else {
-            console.log("Không tìm thấy biểu tượng 'Saved Messages'.");
+            console.log(`[${folderName}] [${proxyHost}]Không tìm thấy biểu tượng 'Saved Messages'.`);
             return false;
         }
 
@@ -435,9 +435,9 @@ async function runRef(page, linkRef, folderName, proxyHost) {
         for (const link of allLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link); // Lấy giá trị href
             if (href === linkRef) {
-                console.log(`Đã tìm thấy liên kết có href khớp với linkRef: ${href}`);
+                console.log(`[${folderName}] [${proxyHost}]Đã tìm thấy liên kết có href khớp với linkRef: ${href}`);
                 await link.click(); // Nhấp vào liên kết nếu khớp
-                console.log("Đã nhấp vào liên kết thành công.");
+                console.log(`[${folderName}] [${proxyHost}]Đã nhấp vào liên kết thành công.`);
 
                 // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
@@ -463,12 +463,12 @@ async function runRef(page, linkRef, folderName, proxyHost) {
         // Bước 4: Nếu không tìm thấy liên kết, nhập linkRef vào ô chỉnh sửa
         const messageInput = await page.$('div[id="editable-message-text"]');
         if (messageInput) {
-            console.log("Không tìm thấy liên kết. Tiến hành nhập linkRef vào ô văn bản...");
+            console.log(`[${folderName}] [${proxyHost}]Không tìm thấy liên kết. Tiến hành nhập linkRef vào ô văn bản...`);
             await messageInput.type(linkRef, { delay: 50 });
             await page.keyboard.press('Enter');
-            console.log("Đã nhập linkRef và nhấn Enter.");
+            console.log(`[${folderName}] [${proxyHost}]Đã nhập linkRef và nhấn Enter.`);
         } else {
-            console.log("Không tìm thấy ô nhập văn bản.");
+            console.log(`[${folderName}] [${proxyHost}]Không tìm thấy ô nhập văn bản.`);
             return false;
         }
 
@@ -479,14 +479,14 @@ async function runRef(page, linkRef, folderName, proxyHost) {
         for (const link of updatedLinks) {
             const href = await page.evaluate(el => el.getAttribute('href'), link);
             if (href === linkRef) {
-                console.log(`Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
+                console.log(`[${folderName}] [${proxyHost}]Đã tìm thấy liên kết sau khi nhập linkRef: ${href}`);
 
                 // Kiểm tra lại phần tử có tồn tại trong DOM trước khi nhấp
                 const isConnected = await page.evaluate(el => el.isConnected, link);
                 if (isConnected) {
                     try {
                         await link.click();
-                        console.log("Đã nhấp vào liên kết thành công.");
+                        console.log(`[${folderName}] [${proxyHost}]Đã nhấp vào liên kết thành công.`);
 
                         // Bước 5: Sau khi click vào linkRef, chờ và click nút "Confirm"
                         console.log(`[${folderName}] [${proxyHost}] Đang chờ nút "Confirm"...`);
@@ -508,43 +508,43 @@ async function runRef(page, linkRef, folderName, proxyHost) {
                         return true;
 
                     } catch (error) {
-                        console.error("Lỗi khi nhấp vào liên kết:", error.message);
+                        console.error(`[${folderName}] [${proxyHost}]Lỗi khi nhấp vào liên kết:`, error.message);
                     }
                 } else {
-                    console.warn("Phần tử đã bị xóa khỏi DOM trước khi nhấp.");
+                    console.warn(`[${folderName}] [${proxyHost}]Phần tử đã bị xóa khỏi DOM trước khi nhấp.`);
                 }
             }
         }
-        console.log("Vẫn không tìm thấy liên kết sau khi nhập linkRef.");
+        console.log(`[${folderName}] [${proxyHost}]Vẫn không tìm thấy liên kết sau khi nhập linkRef.`);
         return false;
     } catch (error) {
-        console.error("Lỗi trong quá trình thực hiện runRef:", error);
+        console.error(`[${folderName}] [${proxyHost}]Lỗi trong quá trình thực hiện runRef:`, error);
         return false;
     }
 }
 
-async function restartBrowserAndRunRef(browser,folderName, proxy, url, head, retryLimit) {
+async function restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit) {
     try {
-        console.log(`[${folderName}] Đang khởi động lại trình duyệt...`);
+        console.log(`[${folderName}] [${proxyHost}] Đang khởi động lại trình duyệt...`);
         
         // Đóng trình duyệt cũ nếu còn kết nối
         if (browser && browser.isConnected()) {
             await browser.close();
-            console.log(`[${folderName}] Trình duyệt cũ đã được đóng.`);
+            console.log(`[${folderName}] [${proxyHost}] Trình duyệt cũ đã được đóng.`);
         }
 
         // Khởi động lại trình duyệt mới và xử lý lại với handleProfileWithProxy
         const { browser: newBrowser, page: newPage } = await handleProfileWithProxy(folderName, proxy, url, head, retryLimit);
 
         if (newBrowser && newPage) {
-            console.log(`[${folderName}] Trình duyệt mới đã được mở thành công.`);
+            console.log(`[${folderName}] [${proxyHost}] Trình duyệt mới đã được mở thành công.`);
             return { newBrowser, newPage };
         } else {
-            console.error(`[${folderName}] Không thể mở trình duyệt mới.`);
+            console.error(`[${folderName}] [${proxyHost}] Không thể mở trình duyệt mới.`);
             return null;
         }
     } catch (error) {
-        console.error(`[${folderName}] Lỗi khi khởi động lại trình duyệt:`, error);
+        console.error(`[${folderName}] [${proxyHost}] Lỗi khi khởi động lại trình duyệt:`, error);
         return null;
     }
 }
@@ -586,7 +586,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 if (linkRef) {
                     // Chỉ chạy runRef nếu chưa từng chạy
                     if (!hasRunRef) {
-                        const runResult = await runRef(page, linkRef);
+                        const runResult = await runRef(folderName, proxyHost,page, linkRef);
             
                         if (runResult) {
                             // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
@@ -601,7 +601,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             
                                 // Tiếp tục sử dụng browser và page mới
                             } else {
-                                console.error(`[${folderName}] Không thể khởi động lại trình duyệt hoặc trang.`);
+                                console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
                             }
 
                         } else {
@@ -715,7 +715,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             if (linkRef) {
                                 // Chỉ chạy runRef nếu chưa từng chạy
                                 if (!hasRunRef) {
-                                    const runResult = await runRef(page, linkRef);
+                                    const runResult = await runRef(folderName, proxyHost,page, linkRef);
                         
                                     if (runResult) {
                                         // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
