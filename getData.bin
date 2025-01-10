@@ -593,7 +593,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                             
                             hasRunRef = true; // Đánh dấu đã chạy runRef
-                            const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, proxy, url, head, retryLimit);
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName,browser, proxy, url, head, retryLimit);
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
                                 browser = newBrowser;
@@ -722,7 +722,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                                         console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`);
                                         
                                         hasRunRef = true; // Đánh dấu đã chạy runRef
-                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName, proxy, url, head, retryLimit);
+                                        const { newBrowser, newPage } = await restartBrowserAndRunRef(browser,folderName,browser, proxy, url, head, retryLimit);
                                         if (newBrowser && newPage) {
                                             // Gán trực tiếp vào biến browser và page hiện tại
                                             browser = newBrowser;
