@@ -114,10 +114,23 @@ async function run() {
                 profileLabel.style.zIndex = '9999';
                 document.body.appendChild(profileLabel);
 
-                // Lắng nghe sự kiện reload
-                window.addEventListener('beforeunload', () => {
-                    localStorage.removeItem('folderName');
+                // Lắng nghe sự kiện reload và đảm bảo tên thư mục luôn hiển thị
+                window.addEventListener('load', () => {
+                    const profileLabel = document.createElement('div');
+                    profileLabel.style.position = 'fixed';
+                    profileLabel.style.top = '100px';
+                    profileLabel.style.right = '10px';
+                    profileLabel.style.padding = '10px';
+                    profileLabel.style.backgroundColor = '#fff';
+                    profileLabel.style.color = '#000';
+                    profileLabel.style.border = '1px solid #ccc';
+                    profileLabel.style.fontSize = '16px';
+                    profileLabel.style.fontWeight = 'bold';
+                    profileLabel.textContent = `Profile: ${localStorage.getItem('folderName')}`;
+                    profileLabel.style.zIndex = '9999';
+                    document.body.appendChild(profileLabel);
                 });
+
             }, folderName);
 
             isBrowserClosing = false; // Đánh dấu trình duyệt đang chạy
