@@ -97,7 +97,7 @@ async function run() {
             await page.evaluate((folderName) => {
                 const profileLabel = document.createElement('div');
                 profileLabel.style.position = 'fixed';
-                profileLabel.style.top = '10px';
+                profileLabel.style.top = '100px';
                 profileLabel.style.right = '10px';
                 profileLabel.style.padding = '10px';
                 profileLabel.style.backgroundColor = '#fff';
