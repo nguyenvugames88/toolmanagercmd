@@ -771,9 +771,16 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     try {
                         const reReload = await reloadPage(page,folderName,proxyHost);
                         if(!reReload){
-                            await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit)
-                            //logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
-                            //break;
+                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
+                            if (newBrowser && newPage) {
+                                // Gán trực tiếp vào biến browser và page hiện tại
+                                browser = newBrowser;
+                                page = newPage;
+                            
+                                // Tiếp tục sử dụng browser và page mới
+                            } else {
+                                console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
+                            }
                         }
         
                         console.log(`[${folderName}] [${proxyHost}] Đã reload trang. Đang tìm lại phần tử "${elementSelector}"...`);
@@ -865,9 +872,16 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`.yellow);
                     const reReload = await reloadPage(page,folderName,proxyHost);
                     if(!reReload){
-                        await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit)
-                        //logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
-                        //break;
+                        const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
+                        if (newBrowser && newPage) {
+                            // Gán trực tiếp vào biến browser và page hiện tại
+                            browser = newBrowser;
+                            page = newPage;
+                        
+                            // Tiếp tục sử dụng browser và page mới
+                        } else {
+                            console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
+                        }
                     }
                     retryAttempts = 0;
                     reloadAttempts++;
@@ -899,9 +913,16 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     console.log(`[${folderName}] [${proxyHost}] Đã thử ${maxRetries} lần mà không thấy iframe. Reload lại trang.`.yellow);
                     const reReload = await reloadPage(page,folderName,proxyHost);
                     if(!reReload){
-                        await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit)
-                        //logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
-                        //break;
+                        const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
+                        if (newBrowser && newPage) {
+                            // Gán trực tiếp vào biến browser và page hiện tại
+                            browser = newBrowser;
+                            page = newPage;
+                        
+                            // Tiếp tục sử dụng browser và page mới
+                        } else {
+                            console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
+                        }
                     }
                     retryAttempts = 0;
                     reloadAttempts++;
@@ -935,9 +956,16 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`);
                             const reReload = await reloadPage(page,folderName,proxyHost);
                             if(!reReload){
-                                await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit)
-                                //logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
-                                //break;
+                                const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
+                                if (newBrowser && newPage) {
+                                    // Gán trực tiếp vào biến browser và page hiện tại
+                                    browser = newBrowser;
+                                    page = newPage;
+                                
+                                    // Tiếp tục sử dụng browser và page mới
+                                } else {
+                                    console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
+                                }
                             }
                             retryAttempts = 0;
                             reloadAttempts++;
@@ -961,9 +989,16 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 } catch (error) {
                     const reReload = await reloadPage(page,folderName,proxyHost);
                     if(!reReload){
-                        await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit)
-                        //logoutError.push(`Profile: ${folderName} - Lỗi reload quá nhiều lần`);
-                        //break;
+                        const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
+                        if (newBrowser && newPage) {
+                            // Gán trực tiếp vào biến browser và page hiện tại
+                            browser = newBrowser;
+                            page = newPage;
+                        
+                            // Tiếp tục sử dụng browser và page mới
+                        } else {
+                            console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
+                        }
                     }
                 }
             } else {
