@@ -95,11 +95,7 @@ async function run() {
 
             // Thêm phần hiển thị FolderName trên góc của trình duyệt
             await page.evaluate((folderName) => {
-                // Kiểm tra nếu folderName đã được lưu trong localStorage
-                if (!localStorage.getItem('folderName')) {
-                    localStorage.setItem('folderName', folderName);
-                }
-
+                // Hiển thị folderName ngay lập tức khi trang tải
                 const profileLabel = document.createElement('div');
                 profileLabel.style.position = 'fixed';
                 profileLabel.style.top = '100px';
@@ -110,25 +106,14 @@ async function run() {
                 profileLabel.style.border = '1px solid #ccc';
                 profileLabel.style.fontSize = '16px';
                 profileLabel.style.fontWeight = 'bold';
-                profileLabel.textContent = `Profile: ${localStorage.getItem('folderName')}`;
+                profileLabel.textContent = `Profile: ${folderName}`;
                 profileLabel.style.zIndex = '9999';
                 document.body.appendChild(profileLabel);
 
                 // Lắng nghe sự kiện reload và đảm bảo tên thư mục luôn hiển thị
-                window.addEventListener('load', () => {
-                    const profileLabel = document.createElement('div');
-                    profileLabel.style.position = 'fixed';
-                    profileLabel.style.top = '100px';
-                    profileLabel.style.right = '10px';
-                    profileLabel.style.padding = '10px';
-                    profileLabel.style.backgroundColor = '#fff';
-                    profileLabel.style.color = '#000';
-                    profileLabel.style.border = '1px solid #ccc';
-                    profileLabel.style.fontSize = '16px';
-                    profileLabel.style.fontWeight = 'bold';
-                    profileLabel.textContent = `Profile: ${localStorage.getItem('folderName')}`;
-                    profileLabel.style.zIndex = '9999';
-                    document.body.appendChild(profileLabel);
+                window.addEventListener('beforeunload', () => {
+                    // Bạn có thể thực hiện thêm xử lý gì đó ở đây trước khi trang reload nếu cần
+                    console.log("Trang sắp reload");
                 });
 
             }, folderName);
@@ -151,3 +136,4 @@ async function run() {
 }
 
 run();
+
