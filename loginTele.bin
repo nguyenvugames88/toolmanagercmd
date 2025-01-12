@@ -74,30 +74,32 @@ async function run() {
             });
 
             // Lắng nghe sự kiện reload hoặc điều hướng
-            page.on('framenavigated', async (frame) => {
-                if (frame === page.mainFrame()) {
-                    console.log('Trang đã được reload hoặc điều hướng!');
-                    // Hiển thị lại label nếu cần
-                    await page.evaluate((folderName) => {
-                        const existingLabel = document.querySelector('#profile-label');
-                        if (!existingLabel) {
-                            const profileLabel = document.createElement('div');
-                            profileLabel.id = 'profile-label';
-                            profileLabel.style.position = 'fixed';
-                            profileLabel.style.top = '100px';
-                            profileLabel.style.right = '10px';
-                            profileLabel.style.padding = '10px';
-                            profileLabel.style.backgroundColor = '#fff';
-                            profileLabel.style.color = '#000';
-                            profileLabel.style.border = '1px solid #ccc';
-                            profileLabel.style.fontSize = '16px';
-                            profileLabel.style.fontWeight = 'bold';
-                            profileLabel.textContent = `Profile: ${folderName}`;
-                            profileLabel.style.zIndex = '9999';
-                            document.body.appendChild(profileLabel);
-                        }
-                    }, folderName);
-                }
+            page.on('domcontentloaded', async () => {
+                console.log('Trang đã được tải lại!');
+                // Thực hiện hiển thị lại label ngay sau khi DOM được tải xong
+                await page.evaluate((folderName) => {
+                    // Xóa label cũ (nếu có) để tránh bị chồng lặp
+                    const existingLabel = document.querySelector('#profile-label');
+                    if (existingLabel) {
+                        existingLabel.remove();
+                    }
+
+                    // Tạo lại label mới
+                    const profileLabel = document.createElement('div');
+                    profileLabel.id = 'profile-label';
+                    profileLabel.style.position = 'fixed';
+                    profileLabel.style.top = '100px';
+                    profileLabel.style.right = '10px';
+                    profileLabel.style.padding = '10px';
+                    profileLabel.style.backgroundColor = '#fff';
+                    profileLabel.style.color = '#000';
+                    profileLabel.style.border = '1px solid #ccc';
+                    profileLabel.style.fontSize = '16px';
+                    profileLabel.style.fontWeight = 'bold';
+                    profileLabel.textContent = `Profile: ${folderName}`;
+                    profileLabel.style.zIndex = '9999';
+                    document.body.appendChild(profileLabel);
+                }, folderName);
             });
 
             await page.goto('https://web.telegram.org/a/#7413313712');
