@@ -648,60 +648,6 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 break; // Thoát vòng lặp
             }
             await new Promise(resolve => setTimeout(resolve, 5000));
-
-            // Kiểm tra nếu tồn tại phần tử với aria-label="Text not allowed"
-            const textNotAllowedSelector = 'div[aria-label="Text not allowed"]';
-            const isTextNotAllowed = await page.$(textNotAllowedSelector);
-
-            // Biến toàn cục hoặc đặt trong phạm vi cần thiết để kiểm soát việc chạy runRef
-
-            if (isTextNotAllowed) {
-                console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
-            
-                if (linkRef != null) {
-                    // Chỉ chạy runRef nếu chưa từng chạy
-                    if (hasRunRef<4) {
-                        const runResult = await runRef(folderName, proxyHost, elementSelector,page, linkRef);
-            
-                        if (runResult) {
-                            // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
-                            console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`.bgGreen);
-                            
-                            hasRunRef++; // Đánh dấu đã chạy runRef
-                            const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
-                            if (newBrowser && newPage) {
-                                // Gán trực tiếp vào biến browser và page hiện tại
-                                browser = newBrowser;
-                                page = newPage;
-                            
-                                // Tiếp tục sử dụng browser và page mới
-                            } else {
-                                console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
-                            }
-
-                        } else {
-                            // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
-                            console.error(`[${folderName}] [${proxyHost}] Lỗi khi chạy runRef.`);
-                            
-                            // Lưu lỗi vào danh sách logoutError
-                            logoutError.push(`Profile: ${folderName} - Lỗi khi chạy Ref cho Telegram này`);
-                            
-                            // Đóng trình duyệt lần cuối nếu còn kết nối
-                            if (browser && browser.isConnected()) {
-                                await browser.close();
-                            }
-            
-                            break; // Thoát vòng lặp nếu runRef không thành công
-                        }
-                    }else{
-                        console.error(`[${folderName}] [${proxyHost}] Đã chạy runRef rồi. Thoát`);
-                        break;
-                    }
-                }else{
-                    console.error(`[${folderName}] [${proxyHost}] Lỗi Link Ref. Thoát`);
-                    break;
-                }
-            }
             
             try {
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử button[class="Button tiny primary fluid has-ripple"]...`.yellow);
@@ -737,7 +683,61 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 if (isLoggedOut) {
                     break; // Thoát vòng lặp nếu đã đăng xuất
                 }
-        
+                
+                // Kiểm tra nếu tồn tại phần tử với aria-label="Text not allowed"
+                const textNotAllowedSelector = 'div[aria-label="Text not allowed"]';
+                const isTextNotAllowed = await page.$(textNotAllowedSelector);
+
+                // Biến toàn cục hoặc đặt trong phạm vi cần thiết để kiểm soát việc chạy runRef
+
+                if (isTextNotAllowed) {
+                    console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
+                
+                    if (linkRef != null) {
+                        // Chỉ chạy runRef nếu chưa từng chạy
+                        if (hasRunRef<4) {
+                            const runResult = await runRef(folderName, proxyHost, elementSelector,page, linkRef);
+                
+                            if (runResult) {
+                                // Nếu runRef trả về true, đóng trình duyệt và gọi lại handleProfileWithProxy
+                                console.log(`[${folderName}] [${proxyHost}] RunRef thành công. Đóng trình duyệt và gọi lại handleProfileWithProxy.`.bgGreen);
+                                
+                                hasRunRef++; // Đánh dấu đã chạy runRef
+                                const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
+                                if (newBrowser && newPage) {
+                                    // Gán trực tiếp vào biến browser và page hiện tại
+                                    browser = newBrowser;
+                                    page = newPage;
+                                
+                                    // Tiếp tục sử dụng browser và page mới
+                                } else {
+                                    console.error(`[${folderName}] [${proxyHost}]  Không thể khởi động lại trình duyệt hoặc trang.`);
+                                }
+
+                            } else {
+                                // Nếu runRef trả về false, ghi lại lỗi và đóng trình duyệt
+                                console.error(`[${folderName}] [${proxyHost}] Lỗi khi chạy runRef.`);
+                                
+                                // Lưu lỗi vào danh sách logoutError
+                                logoutError.push(`Profile: ${folderName} - Lỗi khi chạy Ref cho Telegram này`);
+                                
+                                // Đóng trình duyệt lần cuối nếu còn kết nối
+                                if (browser && browser.isConnected()) {
+                                    await browser.close();
+                                }
+                
+                                break; // Thoát vòng lặp nếu runRef không thành công
+                            }
+                        }else{
+                            console.error(`[${folderName}] [${proxyHost}] Đã chạy runRef rồi. Thoát`);
+                            break;
+                        }
+                    }else{
+                        console.error(`[${folderName}] [${proxyHost}] Lỗi Link Ref. Thoát`);
+                        break;
+                    }
+                }
+
                 try {
                     // Gõ "/start" vào div có id="editable-message-text"
                     console.log(`[${folderName}] [${proxyHost}] Đang nhập "/start" vào div[id="editable-message-text"]...`);
