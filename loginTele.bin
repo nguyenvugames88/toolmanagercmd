@@ -1,40 +1,22 @@
-const puppeteer = require('puppeteer');
-const path = require('path');
 const fs = require('fs');
-const { HttpsProxyAgent } = require('https-proxy-agent'); // Cách import đúng
-const axios = require('axios');
+const path = require('path');
+const puppeteer = require('puppeteer');
 
-// Hàm đọc danh sách profile và proxy từ file TXT
-const readProfilesFromFile = () => {
-    const filePath = path.join(__dirname, 'SelectedProfile.txt');
-    if (!fs.existsSync(filePath)) {
-        console.error('File SelectedProfile.txt không tồn tại.');
-        process.exit(1);
-    }
+let isBrowserClosing = false;
 
-    const lines = fs.readFileSync(filePath, 'utf-8').split('\n').map(line => line.trim()).filter(Boolean);
-    const profiles = lines.map(line => {
-        const parts = line.split('|');
-        return { folderName: parts[0], proxy: parts[1] };
-    });
+async function checkProxy(proxyObj) {
+    // Hàm kiểm tra proxy (giả lập - cần thay thế bằng hàm thực tế)
+    console.log(`Đang kiểm tra proxy: ${JSON.stringify(proxyObj)}`);
+    return true; // Trả về true nếu proxy hợp lệ
+}
 
-    return profiles;
-};
-
-// Hàm kiểm tra proxy
-const checkProxy = async (proxy) => {
-    try {
-        const agent = new HttpsProxyAgent(`http://${proxy.username}:${proxy.password}@${proxy.host}:${proxy.port}`);
-        const response = await axios.get('https://httpbin.org/ip', { httpsAgent: agent }); // Sử dụng `httpsAgent`
-        console.log('Proxy is working:', response.data);
-        return true; // Proxy hợp lệ
-    } catch (error) {
-        console.error('Error with proxy:', error.message);
-        return false; // Proxy không hợp lệ
-    }
-};
-
-let isBrowserClosing = false; // Cờ để theo dõi trạng thái đóng trình duyệt
+function readProfilesFromFile() {
+    // Hàm đọc danh sách profile và proxy từ file
+    return [
+        { folderName: 'profile1', proxy: 'http://username:password@proxyhost:8080' },
+        { folderName: 'profile2', proxy: 'http://username:password@proxyhost:8080' }
+    ];
+}
 
 async function run() {
     // Đọc danh sách profile và proxy từ file
@@ -91,12 +73,39 @@ async function run() {
                 password: proxyPassword
             });
 
+            // Lắng nghe sự kiện reload hoặc điều hướng
+            page.on('framenavigated', async (frame) => {
+                if (frame === page.mainFrame()) {
+                    console.log('Trang đã được reload hoặc điều hướng!');
+                    // Hiển thị lại label nếu cần
+                    await page.evaluate((folderName) => {
+                        const existingLabel = document.querySelector('#profile-label');
+                        if (!existingLabel) {
+                            const profileLabel = document.createElement('div');
+                            profileLabel.id = 'profile-label';
+                            profileLabel.style.position = 'fixed';
+                            profileLabel.style.top = '100px';
+                            profileLabel.style.right = '10px';
+                            profileLabel.style.padding = '10px';
+                            profileLabel.style.backgroundColor = '#fff';
+                            profileLabel.style.color = '#000';
+                            profileLabel.style.border = '1px solid #ccc';
+                            profileLabel.style.fontSize = '16px';
+                            profileLabel.style.fontWeight = 'bold';
+                            profileLabel.textContent = `Profile: ${folderName}`;
+                            profileLabel.style.zIndex = '9999';
+                            document.body.appendChild(profileLabel);
+                        }
+                    }, folderName);
+                }
+            });
+
             await page.goto('https://web.telegram.org/a/#7413313712');
 
             // Thêm phần hiển thị FolderName trên góc của trình duyệt
             await page.evaluate((folderName) => {
-                // Hiển thị folderName ngay lập tức khi trang tải
                 const profileLabel = document.createElement('div');
+                profileLabel.id = 'profile-label';
                 profileLabel.style.position = 'fixed';
                 profileLabel.style.top = '100px';
                 profileLabel.style.right = '10px';
@@ -109,13 +118,6 @@ async function run() {
                 profileLabel.textContent = `Profile: ${folderName}`;
                 profileLabel.style.zIndex = '9999';
                 document.body.appendChild(profileLabel);
-
-                // Lắng nghe sự kiện reload và đảm bảo tên thư mục luôn hiển thị
-                window.addEventListener('beforeunload', () => {
-                    // Bạn có thể thực hiện thêm xử lý gì đó ở đây trước khi trang reload nếu cần
-                    console.log("Trang sắp reload");
-                });
-
             }, folderName);
 
             isBrowserClosing = false; // Đánh dấu trình duyệt đang chạy
@@ -135,5 +137,4 @@ async function run() {
     console.log('Hoàn thành tất cả profile.');
 }
 
-run();
-
+run().catch(err => console.error('Đã xảy ra lỗi trong quá trình thực thi:', err));
