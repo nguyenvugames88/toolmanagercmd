@@ -470,7 +470,7 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                         const iframe = await page.$('iframe');
                         if (iframe) {
                             console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
-                            await new Promise(resolve => setTimeout(resolve, 10000));
+                            await new Promise(resolve => setTimeout(resolve, 30000));
                             return true;
                         } else {
                             console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
@@ -487,7 +487,7 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                                 const iframe = await page.$('iframe');
                                 if (iframe) {
                                     console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
-                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    await new Promise(resolve => setTimeout(resolve, 30000));
                                     return true;
                                 } else {
                                     console.log(`[${folderName}] [${proxyHost}] Không tìm thấy iframe. Thử lại...`.red);
