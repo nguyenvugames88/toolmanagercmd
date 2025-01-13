@@ -469,7 +469,7 @@ async function runRef(folderName, proxyHost, elementSelector, page, linkRef) {
                         await page.waitForSelector('iframe', { timeout: 10000 }); // Chờ tối đa 10 giây
                         const iframe = await page.$('iframe');
                         if (iframe) {
-                            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 10s.`.green);
+                            console.log(`[${folderName}] [${proxyHost}] Đã tìm thấy iframe. Chờ thêm 30s.`.green);
                             await new Promise(resolve => setTimeout(resolve, 30000));
                             return true;
                         } else {
@@ -649,9 +649,9 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
             }
             await new Promise(resolve => setTimeout(resolve, 5000));
             
-            try {
+            /*try {
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử button[class="Button tiny primary fluid has-ripple"]...`.yellow);
-                await page.waitForSelector('button[class="Button tiny primary fluid has-ripple"]', { visible: true, timeout: 5000 });
+                await page.waitForSelector('button[class="Button tiny primary fluid has-ripple"]', { visible: true, timeout: 10000 });
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Thêm thời gian chờ trước khi click
                 console.log(`[${folderName}] [${proxyHost}] Tìm thấy phần tử button[class="Button tiny primary fluid has-ripple"]! Đang click...`.blue);
                 await page.click('button[class="Button tiny primary fluid has-ripple"]');
@@ -667,7 +667,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 } else {
                     console.error(`[${folderName}] [${proxyHost}] Lỗi khi xử lý phần tử:`, error.message);
                 }
-            }
+            }*/
 
             try {
                 console.log(`[${folderName}] [${proxyHost}] Đang chờ phần tử "${elementSelector}"...`);
@@ -692,8 +692,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 
                 if (isTextNotAllowed) {
                     console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
-                
-                    if (linkRef != null) {
+                    logoutError.push(`Profile: ${folderName} - Chưa chạy Ref cho tài khoản Telegram.`);
+                    await browser.close();
+                    break;
+                    /*if (linkRef != null) {
                         // Chỉ chạy runRef nếu chưa từng chạy
                         if (hasRunRef<4) {
                             const runResult = await runRef(folderName, proxyHost, elementSelector,page, linkRef);
@@ -735,7 +737,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     }else{
                         console.error(`[${folderName}] [${proxyHost}] Lỗi Link Ref. Thoát`);
                         break;
-                    }
+                    }*/
                 }
 
                 try {
@@ -771,6 +773,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     try {
                         const reReload = await reloadPage(page,folderName,proxyHost);
                         if(!reReload){
+                            // Đóng trình duyệt lần cuối nếu còn kết nối
+                            if (browser && browser.isConnected()) {
+                                await browser.close();
+                            }
                             const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                             if (newBrowser && newPage) {
                                 // Gán trực tiếp vào biến browser và page hiện tại
@@ -805,8 +811,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
 
                         if (isTextNotAllowed) {
                             console.error(`[${folderName}] [${proxyHost}] Chưa chạy Ref cho tài khoản Telegram.`);
-                        
-                            if (linkRef) {
+                            logoutError.push(`Profile: ${folderName} - Chưa chạy Ref cho tài khoản Telegram.`);
+                            await browser.close();
+                            break;
+                            /*if (linkRef) {
                                 // Chỉ chạy runRef nếu chưa từng chạy
                                 if (hasRunRef < 4) {
                                     const runResult = await runRef(folderName, proxyHost, elementSelector, page, linkRef);
@@ -848,7 +856,7 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             }else{
                                 console.error(`[${folderName}] [${proxyHost}] Lỗi Link Ref. Thoát`);
                                 break;
-                            }
+                            }*/
                         }
                     }
                 }
@@ -872,6 +880,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`.yellow);
                     const reReload = await reloadPage(page,folderName,proxyHost);
                     if(!reReload){
+                        // Đóng trình duyệt lần cuối nếu còn kết nối
+                        if (browser && browser.isConnected()) {
+                            await browser.close();
+                        }
                         const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                         if (newBrowser && newPage) {
                             // Gán trực tiếp vào biến browser và page hiện tại
@@ -913,6 +925,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                     console.log(`[${folderName}] [${proxyHost}] Đã thử ${maxRetries} lần mà không thấy iframe. Reload lại trang.`.yellow);
                     const reReload = await reloadPage(page,folderName,proxyHost);
                     if(!reReload){
+                        // Đóng trình duyệt lần cuối nếu còn kết nối
+                        if (browser && browser.isConnected()) {
+                            await browser.close();
+                        }
                         const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                         if (newBrowser && newPage) {
                             // Gán trực tiếp vào biến browser và page hiện tại
@@ -956,6 +972,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                             console.log(`[${folderName}] [${proxyHost}] Src của iframe trống hoặc không hợp lệ. Reload lại trang.`);
                             const reReload = await reloadPage(page,folderName,proxyHost);
                             if(!reReload){
+                                // Đóng trình duyệt lần cuối nếu còn kết nối
+                                if (browser && browser.isConnected()) {
+                                    await browser.close();
+                                }
                                 const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                                 if (newBrowser && newPage) {
                                     // Gán trực tiếp vào biến browser và page hiện tại
@@ -989,6 +1009,10 @@ async function processIframeDetection(browser, page, folderName, proxyHost, elem
                 } catch (error) {
                     const reReload = await reloadPage(page,folderName,proxyHost);
                     if(!reReload){
+                        // Đóng trình duyệt lần cuối nếu còn kết nối
+                        if (browser && browser.isConnected()) {
+                            await browser.close();
+                        }
                         const { newBrowser, newPage } = await restartBrowserAndRunRef(folderName, proxyHost,browser, proxy, url, head, retryLimit);;
                         if (newBrowser && newPage) {
                             // Gán trực tiếp vào biến browser và page hiện tại
