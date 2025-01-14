@@ -320,7 +320,7 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
 
 const run = async () => {
     const profiles = readProfilesFromFile();
-    const threadCount = readThreadCount();
+    const threadCount =  await readThreadCount();
     const proxies = readProxiesFromFile();
 
     console.log(`Số luồng tối đa: ${threadCount}`);
