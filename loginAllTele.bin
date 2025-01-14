@@ -107,8 +107,8 @@ const processedProfiles = new Set(); // Danh sách các profile đã xử lý
 
 const runWithConcurrency = async (profiles, maxThreads, pendingProfiles, proxies) => {
     const resolution = getScreenResolution();
-    const windowWidth = 800;
-    const windowHeight = 900;
+    const windowWidth = 500;
+    const windowHeight = 600;
 
     let positionX = 0;
     let positionY = 0;
@@ -182,7 +182,7 @@ const runWithConcurrency = async (profiles, maxThreads, pendingProfiles, proxies
             }
 
             positionX += windowWidth;
-            if (positionX + windowWidth > resolution.width * 2) {
+            if (positionX + windowWidth > resolution.width * 4/3) {
                 positionX = 0;
                 positionY += windowHeight;
             }
@@ -273,7 +273,7 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
                 `--proxy-server=http://${proxyHost}:${proxyPort}`,
                 `--user-data-dir=${userDataPath}`,
                 '--disable-notifications',
-                '--window-size=800,900',
+                '--window-size=500,600',
                 '--force-device-scale-factor=0.75',
                 '--disable-session-crashed-bubble',
                 `--window-position=${positionX},${positionY}` // Thêm vị trí của cửa sổ
