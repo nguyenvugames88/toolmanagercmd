@@ -254,7 +254,7 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
     }
 
     try {
-        const browser = await retry(() => launchBrowser({
+        const browser = await retry(() => launchBrowser({ 
             headless: false,
             args: [
                 `--proxy-server=http://${proxyHost}:${proxyPort}`,
@@ -264,10 +264,12 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
                 '--no-sandbox',
                 '--disable-gpu',
                 '--window-size=800,900',
-                '--force-device-scale-factor=0.5'
+                '--force-device-scale-factor=0.5',
+                `--window-position=${positionX},${positionY}` // Thêm vị trí của cửa sổ
             ],
             defaultViewport: null
         }), 3);
+        
 
         const page = await browser.newPage();
 
