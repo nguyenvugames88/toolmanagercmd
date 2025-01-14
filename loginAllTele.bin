@@ -107,8 +107,8 @@ const processedProfiles = new Set(); // Danh sách các profile đã xử lý
 
 const runWithConcurrency = async (profiles, maxThreads, pendingProfiles, proxies) => {
     const resolution = getScreenResolution();
-    const windowWidth = 800;
-    const windowHeight = 900;
+    const windowWidth = 500;
+    const windowHeight = 600;
 
     let positionX = 0;
     let positionY = 0;
@@ -255,7 +255,7 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
                 `--proxy-server=http://${proxyHost}:${proxyPort}`,
                 `--user-data-dir=${userDataPath}`,
                 '--disable-notifications',
-                '--window-size=500,500',
+                '--window-size=500,600',
                 '--force-device-scale-factor=0.75',
                 `--window-position=${positionX},${positionY}` // Thêm vị trí của cửa sổ
             ],
