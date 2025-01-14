@@ -256,7 +256,7 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
                 `--user-data-dir=${userDataPath}`,
                 '--disable-notifications',
                 '--window-size=800,900',
-                '--force-device-scale-factor=1',
+                '--force-device-scale-factor=0.5',
                 `--window-position=${positionX},${positionY}` // Thêm vị trí của cửa sổ
             ],
             defaultViewport: null
