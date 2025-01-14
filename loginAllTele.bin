@@ -120,7 +120,14 @@ const cleanup = async () => {
                 console.log(`Trình duyệt phụ PID ${slave.process().pid} đã đóng trước đó.`);
             }
         }
+        // Lọc các profile chưa xử lý
+        const remainingProfiles = profiles.filter(profile => !processedProfiles.has(profile.folderName));
 
+        // Nếu không còn profile nào chưa xử lý, dừng lại
+        if (remainingProfiles.length === 0) {
+            console.log('Tất cả các profile đã được xử lý.');
+            process.exit(0); 
+        }
         // Reset lại thông tin sau khi đóng tất cả
         slaveBrowsers.length = 0;
         activeSlaveBrowsersCount = 0;
@@ -191,7 +198,7 @@ const startProfiles = async (profiles, processedProfiles, slaveBrowsers, maxThre
     // Nếu không còn profile nào chưa xử lý, dừng lại
     if (remainingProfiles.length === 0) {
         console.log('Tất cả các profile đã được xử lý.');
-        process.exit(0); 
+        return;
     }
 
     for (let i = 0; i < remainingProfiles.length; i++) {
