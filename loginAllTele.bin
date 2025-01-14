@@ -164,7 +164,7 @@ const runWithConcurrency = async (profiles, maxThreads, pendingProfiles, proxies
             }
 
             positionX += windowWidth;
-            if (positionX + windowWidth > resolution.width * 2) {
+            if (positionX + windowWidth > (resolution.width * 4)/3) {
                 positionX = 0;
                 positionY += windowHeight;
             }
