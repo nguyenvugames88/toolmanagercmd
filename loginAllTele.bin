@@ -255,9 +255,6 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
                 `--proxy-server=http://${proxyHost}:${proxyPort}`,
                 `--user-data-dir=${userDataPath}`,
                 '--disable-notifications',
-                '--disable-extensions',
-                '--no-sandbox',
-                '--disable-gpu',
                 '--window-size=800,900',
                 '--force-device-scale-factor=0.5',
                 `--window-position=${positionX},${positionY}` // Thêm vị trí của cửa sổ
