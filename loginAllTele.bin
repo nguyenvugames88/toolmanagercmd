@@ -115,11 +115,45 @@ const runWithConcurrency = async (profiles, maxThreads, pendingProfiles, proxies
 
     let masterBrowser = null;
     const slaveBrowsers = [];
-
+    // Xử lý tín hiệu SIGINT để đảm bảo đóng trình duyệt đúng cách
     process.on('SIGINT', async () => {
         console.log('Nhận tín hiệu đóng');
-        if (masterBrowser) { 
-            await masterBrowser.close(); 
+        
+        if (masterBrowser) {
+            try {
+                await masterBrowser.close();
+            } catch (error) {
+                console.error(`Lỗi khi đóng trình duyệt chính: ${error.message}`);
+            }
+        }
+
+        for (const slave of slaveBrowsers) {
+            try {
+                if (slave.isConnected()) {
+                    await slave.close();
+                    console.log(`Trình duyệt phụ PID ${slave.process().pid} đã đóng.`);
+                }
+            } catch (error) {
+                console.error(`Lỗi khi đóng trình duyệt phụ: ${error.message}`);
+            }
+        }
+
+        // Chờ tất cả trình duyệt đóng trước khi thoát
+        await Promise.all(slaveBrowsers.map(browser => browser.close()));
+
+        process.exit(0);
+    });
+
+    // Hàm chính và logic xử lý tiếp theo...
+
+    const cleanup = async () => {
+        console.log('Đang thực hiện dọn dẹp...');
+        if (masterBrowser) {
+            try {
+                await masterBrowser.close();
+            } catch (error) {
+                console.error(`Lỗi khi đóng trình duyệt chính: ${error.message}`);
+            }
         }
         for (const slave of slaveBrowsers) {
             try {
@@ -132,8 +166,15 @@ const runWithConcurrency = async (profiles, maxThreads, pendingProfiles, proxies
             }
         }
         process.exit(0);
+    };
+    
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+    process.on('uncaughtException', async (err) => {
+        console.error('Lỗi không bắt được:', err);
+        await cleanup();
     });
-
+    
     const startProfiles = async () => {
         for (let i = 0; i < profiles.length; i++) {
             if (processedProfiles.has(profiles[i].folderName)) {
@@ -276,6 +317,11 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
                 '--window-size=500,600',
                 '--force-device-scale-factor=0.75',
                 '--disable-session-crashed-bubble',
+                '--mute-audio',
+                '--no-sandbox', 
+                '--disable-software-rasterizer',
+                '--disable-dev-shm-usage', 
+                '--disable-restore-session-state'
                 `--window-position=${positionX},${positionY}` // Thêm vị trí của cửa sổ
             ],
             defaultViewport: null
@@ -325,6 +371,10 @@ const handleProfile = async ({ folderName, proxy }, positionX, positionY, isMast
     } catch (error) {
         console.error(`[${folderName}] [${proxyHost}] Lỗi: ${error.message}`);
         return { browser: null, page: null, proxyHost };
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
     }
 };
 
