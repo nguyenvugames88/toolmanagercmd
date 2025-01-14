@@ -191,7 +191,7 @@ const startProfiles = async (profiles, processedProfiles, slaveBrowsers, maxThre
     // Nếu không còn profile nào chưa xử lý, dừng lại
     if (remainingProfiles.length === 0) {
         console.log('Tất cả các profile đã được xử lý.');
-        return;
+        process.exit(0); 
     }
 
     for (let i = 0; i < remainingProfiles.length; i++) {
