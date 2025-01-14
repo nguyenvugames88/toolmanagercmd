@@ -244,22 +244,22 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
             }
         }
     }
-
+    let browser
     try {
-        const browser = await retry(() => launchBrowser({
-            headless: head,
-            args: [
-                `--proxy-server=http://${proxyHost}:${proxyPort}`,
-                `--user-data-dir=${userDataPath}`,
-                '--disable-notifications',
-                '--disable-extensions',
-                '--no-sandbox',
-                '--disable-gpu',
-                '--window-size=800,900',
-                '--force-device-scale-factor=0.5',
-                '--disable-session-crashed-bubble', // Tắt thông báo "Restore pages?"
-            ],
-            defaultViewport: { width: 800, height: 800 }
+        browser = await retry(() => launchBrowser({
+        headless: head,
+        args: [
+            `--proxy-server=http://${proxyHost}:${proxyPort}`,
+            `--user-data-dir=${userDataPath}`,
+            '--disable-notifications',
+            '--disable-extensions',
+            '--no-sandbox',
+            '--disable-gpu',
+            '--window-size=800,900',
+            '--force-device-scale-factor=0.5',
+            '--disable-session-crashed-bubble', // Tắt thông báo "Restore pages?"
+        ],
+        defaultViewport: { width: 800, height: 800 }
         }), 3);
 
         const page = await browser.newPage();
