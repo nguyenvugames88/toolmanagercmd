@@ -78,12 +78,19 @@ async function run() {
                     `--proxy-server=http://${proxyHost}:${proxyPort}`,
                     '--start-maximized',
                     '--disable-notifications',
-                    '--disable-extensions',
                     `--user-data-dir=${userDataPath}`
                 ]
             });
 
             const page = await browser.newPage();
+
+            // Xử lý các cookies và xác thực proxy
+            const cookies = await page.cookies();
+            for (let cookie of cookies) {
+                if (cookie.name === 'proxy-auth-cookie' || cookie.domain === 'proxy.example.com') {
+                    await page.deleteCookie(cookie);
+                }
+            }
 
             // Thiết lập xác thực proxy
             await page.authenticate({
@@ -91,13 +98,13 @@ async function run() {
                 password: proxyPassword
             });
 
-            await page.goto('https://web.telegram.org/a/#7413313712');
+            await page.goto('https://web.telegram.org/a/#-1002195195515');
 
             // Thêm phần hiển thị FolderName trên góc của trình duyệt
             await page.evaluate((folderName) => {
                 const profileLabel = document.createElement('div');
                 profileLabel.style.position = 'fixed';
-                profileLabel.style.top = '100px';
+                profileLabel.style.top = '10px';
                 profileLabel.style.right = '10px';
                 profileLabel.style.padding = '10px';
                 profileLabel.style.backgroundColor = '#fff';
