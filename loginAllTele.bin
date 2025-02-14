@@ -44,6 +44,12 @@ const readProfilesFromFile = () => {
     .filter(Boolean);
 };
 
+// Lấy proxy ngẫu nhiên
+const getRandomProxy = (proxies) => {
+    const index = Math.floor(Math.random() * proxies.length);
+    return proxies[index];
+};
+
 const readThreadCount = async () => {
   const filePath = path.join(__dirname, 'Theard.txt');
   await waitForFile(filePath);
