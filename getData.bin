@@ -1159,7 +1159,7 @@ const run = async () => {
             });
         });
 
-        await retryFailedProfiles(failedProfiles,url, elementSelector,linkRef, dataFilePath,theard,showBrowser); 
+        //await retryFailedProfiles(failedProfiles,url, elementSelector,linkRef, dataFilePath,theard,showBrowser); 
 
         if (logoutError.length > 0) {
             const bom = '\uFEFF'; // BOM cho UTF-8
