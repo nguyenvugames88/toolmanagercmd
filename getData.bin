@@ -261,8 +261,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
                 '--no-sandbox', 
                 '--disable-software-rasterizer',
                 '--disable-dev-shm-usage', 
-                '--disable-restore-session-state',
-                `--window-position=${positionX},${positionY}`
+                '--disable-restore-session-state'
             ],
             defaultViewport: null
         }), 3);
