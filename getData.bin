@@ -249,7 +249,7 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
     let browser;
     try {
         browser = await retry(() => launchBrowser({ 
-            headless: false,
+            headless: head,
             args: [
                 `--proxy-server=http://${proxyHost}:${proxyPort}`,
                 `--user-data-dir=${userDataPath}`,
