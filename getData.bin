@@ -28,28 +28,16 @@ const readProfilesFromFile = () => {
     });
 };
 
+// Hàm kiểm tra proxy
 const checkProxy = async (proxy) => {
     try {
-        // Kiểm tra định dạng proxy
-        if (!proxy.username || !proxy.password || !proxy.host || !proxy.port) {
-            console.error('Thông tin proxy không đầy đủ:', proxy);
-            return false;
-        }
-
-        // Tạo HttpsProxyAgent
         const agent = new HttpsProxyAgent(`http://${proxy.username}:${proxy.password}@${proxy.host}:${proxy.port}`);
-
-        // Gửi yêu cầu kiểm tra proxy
-        const response = await axios.get('https://httpbin.org/ip', {
-            httpsAgent: agent,
-            timeout: 5000, // Timeout 5 giây
-        });
-
-        console.log('Proxy hoạt động:', response.data);
-        return true;
+        // Gửi một yêu cầu HTTP đơn giản để kiểm tra proxy
+        const response = await axios.get('http://www.google.com', { httpsAgent: agent, timeout: 5000 });
+        return response.status === 200; // Nếu trả về status 200 thì proxy hợp lệ
     } catch (error) {
-        console.error('Lỗi proxy:', error.message, error.code); // Log chi tiết lỗi
-        return false;
+        console.error(`Lỗi khi kiểm tra proxy ${proxy.host}:${proxy.port} - ${error.message}`);
+        return false; // Nếu có lỗi thì proxy không hợp lệ
     }
 };
 
@@ -180,31 +168,46 @@ async function retryProxy(folderName, proxyHost, proxyObj, retryLimit = 3) {
     return proxyObj;
 }
 
-
+// Lấy proxy ngẫu nhiên
+const getRandomProxy = (proxies) => {
+    const index = Math.floor(Math.random() * proxies.length);
+    return proxies[index];
+};
 
 async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) {
-    const proxyParts = proxy.match(/^http:\/\/([^:]+):([^@]+)@([^:]+):(\d+)$/);
+    let proxyParts = proxy.match(/^http:\/\/([^:]+):([^@]+)@([^:]+):(\d+)$/);
     if (!proxyParts) {
-        console.error(`Proxy "${proxy}" không hợp lệ.`);
-        return { browser: null, page: null, proxyHost: null }; // Return proxyHost as well// Trả về null nếu proxy không hợp lệ
+        console.error(`Proxy \"${proxy}\" không hợp lệ.`);
+        return { browser: null, page: null, proxyHost: null };
     }
 
-    let  [_, proxyUsername, proxyPassword, proxyHost, proxyPort] = proxyParts;
+    let [_, proxyUsername, proxyPassword, proxyHost, proxyPort] = proxyParts;
     let proxyObj = { host: proxyHost, port: parseInt(proxyPort, 10), username: proxyUsername, password: proxyPassword };
 
-    // Kiểm tra tính hợp lệ của proxy và thay đổi nếu cần
-    const updatedProxy = await retryProxy(folderName, proxyHost, proxyObj, retryLimit);
+    console.log(`Đang kiểm tra proxy: ${proxyHost}:${proxyPort}`);
+    let isProxyValid = await checkProxy(proxyObj);
 
-    if (updatedProxy) {
-        // Nếu proxy được cập nhật thành công, sử dụng proxy mới
-        proxyObj = updatedProxy;
-        proxyHost = updatedProxy.host; // Cập nhật lại proxyHost nếu cần
-        proxyPort = updatedProxy.port;
-        proxyUsername = updatedProxy.username;
-        proxyPassword= updatedProxy.password
-    } else {
-        // Nếu không có proxy hợp lệ, return với giá trị null
-        return { browser: null, page: null, proxyHost: null };
+    if (!isProxyValid) {
+        console.error(`[${folderName}] Proxy không hợp lệ. Đang chọn proxy khác...`);
+        let retries = 3;
+        while (retries > 0) {
+            proxyObj = getRandomProxy(proxies);
+            console.log(`Thử proxy mới: ${proxyObj.host}:${proxyObj.port}`);
+            if (await checkProxy(proxyObj)) {
+                console.log(`Proxy hợp lệ: ${proxyObj.host}:${proxyObj.port}`);
+                proxyUsername = proxyObj.username;
+                proxyPassword = proxyObj.password;
+                proxyHost = proxyObj.host;
+                proxyPort = proxyObj.port;
+                break;
+            }
+            retries--;
+        }
+
+        if (retries === 0) {
+            console.error(`[${folderName}] Không tìm được proxy hợp lệ.`);
+            return { browser: null, page: null, proxyHost: null };
+        }
     }
 
     const userDataPath = path.join(__dirname, 'profiles', folderName);
@@ -212,12 +215,11 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
         fs.mkdirSync(userDataPath, { recursive: true });
     }
 
-    // Hàm khởi chạy trình duyệt với proxy
     async function launchBrowser(options) {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject(new Error('Timed out while launching browser'));
-            }, 30000); // Thời gian chờ tối đa 30 giây
+            }, 30000);
 
             puppeteer.launch(options).then(browser => {
                 clearTimeout(timeout);
@@ -229,7 +231,6 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
         });
     }
 
-    // Hàm retry để thử lại khi có lỗi
     async function retry(fn, retries = 3) {
         let lastError;
         for (let i = 0; i < retries; i++) {
@@ -244,42 +245,52 @@ async function handleProfileWithProxy(folderName, proxy, url, head, retryLimit) 
             }
         }
     }
-    let browser
-    try {
-        browser = await retry(() => launchBrowser({
-        headless: head,
-        args: [
-            `--proxy-server=http://${proxyHost}:${proxyPort}`,
-            `--user-data-dir=${userDataPath}`,
-            '--disable-notifications',
-            '--disable-extensions',
-            '--no-sandbox',
-            '--disable-gpu',
-            '--window-size=800,900',
-            '--force-device-scale-factor=0.5',
-            '--disable-session-crashed-bubble', // Tắt thông báo "Restore pages?"
-        ],
-        defaultViewport: { width: 800, height: 800 }
-        }), 3);
 
+    let browser;
+    try {
+        browser = await retry(() => launchBrowser({ 
+            headless: false,
+            args: [
+                `--proxy-server=http://${proxyHost}:${proxyPort}`,
+                `--user-data-dir=${userDataPath}`,
+                '--disable-notifications',
+                '--window-size=500,600',
+                '--force-device-scale-factor=0.75',
+                '--disable-session-crashed-bubble',
+                '--mute-audio',
+                '--no-sandbox', 
+                '--disable-software-rasterizer',
+                '--disable-dev-shm-usage', 
+                '--disable-restore-session-state',
+                `--window-position=${positionX},${positionY}`
+            ],
+            defaultViewport: null
+        }), 3);
+        
         const page = await browser.newPage();
 
-        // Xử lý các cookies và xác thực proxy
+        // Tải cookie từ file nếu tồn tại
+        const cookiesPath = path.join(userDataPath, 'cookies.json');
+        if (fs.existsSync(cookiesPath)) {
+            const cookies = JSON.parse(fs.readFileSync(cookiesPath));
+            await page.setCookie(...cookies);
+            console.log(`[${folderName}] [${proxyHost}] Đã tải cookie từ file.`);
+        }
+
         const cookies = await page.cookies();
         for (let cookie of cookies) {
             if (cookie.name === 'proxy-auth-cookie' || cookie.domain === 'proxy.example.com') {
                 await page.deleteCookie(cookie);
             }
         }
-        console.log(`[${folderName}] [${proxyHost}] Đã xóa các cookie liên quan đến xác thực proxy.`.blue);
+        console.log(`[${folderName}] [${proxyHost}] Đã xóa các cookie liên quan đến xác thực proxy.`);
 
-        // Xác thực proxy nếu có
         if (proxyUsername && proxyPassword) {
             await page.authenticate({
                 username: proxyUsername,
                 password: proxyPassword
             });
-            console.log(`[${folderName}] [${proxyHost}] Đã xác thực proxy: ${proxyUsername}@${proxyHost}`.green);
+            console.log(`[${folderName}] [${proxyHost}] Đã xác thực proxy: ${proxyUsername}@${proxyHost}`);
         }
 
         // Truy cập URL
@@ -1159,7 +1170,7 @@ const run = async () => {
             });
         });
 
-        //await retryFailedProfiles(failedProfiles,url, elementSelector,linkRef, dataFilePath,theard,showBrowser); 
+        await retryFailedProfiles(failedProfiles,url, elementSelector,linkRef, dataFilePath,theard,showBrowser); 
 
         if (logoutError.length > 0) {
             const bom = '\uFEFF'; // BOM cho UTF-8
