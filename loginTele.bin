@@ -73,7 +73,15 @@ async function run() {
           '--start-maximized',
           '--disable-notifications',
           `--user-data-dir=${userDataPath}`,
+          '--no-sandbox', // Sometimes needed for stability
+          '--disable-setuid-sandbox',
+          '--disable-blink-features=AutomationControlled', // Hides automation flags
         ],
+        ignoreDefaultArgs: ['--enable-automation'], // Removes automation indicators
+      });
+
+      await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
       });
 
       const page = await browser.newPage();
@@ -87,7 +95,7 @@ async function run() {
         try {
           await page.goto('https://web.telegram.org/a/#-1002195195515', {
             waitUntil: 'networkidle2',
-            timeout: 30000,
+            timeout: 60000, // 60 seconds
           });
           break;
         } catch (err) {
