@@ -80,14 +80,16 @@ async function run() {
         ignoreDefaultArgs: ['--enable-automation'], // Removes automation indicators
       });
 
-      await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, 'webdriver', { get: () => false });
-      });
+
 
       const page = await browser.newPage();
       await page.authenticate({
         username: proxyObj.username,
         password: proxyObj.password,
+      });
+
+      await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
       });
 
       const maxRetries = 3;
