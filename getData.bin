@@ -786,23 +786,23 @@ const run = async () => {
         const parallelThreads = parseInt(theard, 10) || MAX_PARALLEL_PROFILES;
 
         // Hàm xử lý profile với delay
-        const processWithDelay = async (profile, index) => {
-            const delay = index * 10000; // 10 giây (10000ms) nhân với chỉ số
+        const processWithDelay = async (profile, index, callback) => {
+            const delay = index * 3000; // 10 giây (3000ms) nhân với chỉ số
             console.log(`[${profile.folderName}] Chờ ${delay / 1000} giây trước khi chạy...`.yellow);
             await sleep(delay); // Tạm dừng theo thời gian delay
-            await processProfile(profile, { url, elementSelector, linkRef, dataFilePath, showBrowser });
+            try {
+                await processProfile(profile, { url, elementSelector, linkRef, dataFilePath, showBrowser });
+                callback(); // Gọi callback khi hoàn thành thành công
+            } catch (err) {
+                callback(err); // Truyền lỗi về callback nếu có lỗi
+            }
         };
 
         // Sử dụng async.eachLimit để giới hạn số lượng tác vụ chạy đồng thời
         await new Promise((resolve, reject) => {
-            async.eachLimit(profiles, parallelThreads, async (profile, callback) => {
+            async.eachLimit(profiles, parallelThreads, (profile, callback) => {
                 const index = profiles.indexOf(profile); // Lấy chỉ số của profile
-                try {
-                    await processWithDelay(profile, index);
-                    callback(); // Gọi callback khi hoàn thành
-                } catch (err) {
-                    callback(err); // Trả về lỗi nếu có
-                }
+                processWithDelay(profile, index, callback); // Truyền callback vào processWithDelay
             }, (err) => {
                 if (err) {
                     reject(err);
@@ -840,6 +840,5 @@ const run = async () => {
         process.exit(0);
     }
 };
-
 
 run();
