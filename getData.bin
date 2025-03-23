@@ -785,16 +785,16 @@ const run = async () => {
         // Chuyển đổi theard thành số nguyên
         const parallelThreads = parseInt(theard, 10) || MAX_PARALLEL_PROFILES;
 
-        // Hàng đợi xử lý
+        // Biến theo dõi số thread đang chạy và thứ tự thread
         let activeThreads = 0;
         let threadCounter = 0;
 
-        const processProfileWithDelay = async (profile) => {
-            const delay = Math.min(threadCounter, parallelThreads - 1) * 3000; // Tăng dần cho đến thread 10
-            console.log(`[${profile.folderName}] Chờ ${delay / 1000} giây trước khi chạy (thread thứ ${threadCounter + 1})...`.yellow);
+        const processProfileWithDelay = async (profile, initialDelay) => {
+            const threadNum = ++threadCounter; // Tăng trước để bắt đầu từ 1
+            const delay = initialDelay !== undefined ? initialDelay : 3000; // Delay ban đầu hoặc 10s cho thread tiếp theo
+            console.log(`[${profile.folderName}] Chờ ${delay / 1000} giây trước khi chạy (thread thứ ${threadNum})...`.yellow);
             await sleep(delay);
             activeThreads++;
-            threadCounter++;
             try {
                 await processProfile(profile, { url, elementSelector, linkRef, dataFilePath, showBrowser });
             } finally {
@@ -810,7 +810,7 @@ const run = async () => {
         const runNextProfile = async () => {
             if (profiles.length > 0 && activeThreads < parallelThreads) {
                 const profile = profiles.shift(); // Lấy profile tiếp theo
-                processProfileWithDelay(profile);
+                await processProfileWithDelay(profile); // Không truyền initialDelay, mặc định là 10s
             }
         };
 
@@ -818,7 +818,8 @@ const run = async () => {
         const initialThreads = Math.min(parallelThreads, profiles.length);
         for (let i = 0; i < initialThreads; i++) {
             const profile = profiles.shift();
-            processProfileWithDelay(profile);
+            const initialDelay = i * 3000; // 0s, 10s, 20s, ..., 90s cho 10 thread đầu
+            processProfileWithDelay(profile, initialDelay);
         }
 
         // Chờ tất cả thread hoàn thành
