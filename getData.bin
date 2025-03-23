@@ -780,37 +780,42 @@ const run = async () => {
 
         const [nameTask, url, elementSelector, linkRef, dataFilePath, theard, showBrowser] = gameData[0].split('|');
         fs.writeFileSync(dataFilePath, '', 'utf-8'); // Xóa dữ liệu cũ
-        const profiles = readProfilesFromFile();
+        let profiles = readProfilesFromFile(); // Dùng let để có thể thay đổi mảng
 
         // Chuyển đổi theard thành số nguyên
         const parallelThreads = parseInt(theard, 10) || MAX_PARALLEL_PROFILES;
+        const delayBetweenThreads = 3000; // 3 giây giữa mỗi thread
 
-        // Biến theo dõi số thread đang chạy và thứ tự thread
+        // Biến theo dõi
         let activeThreads = 0;
         let threadCounter = 0;
+        let lastScheduledTime = 0; // Thời điểm cuối cùng một thread được lên lịch
 
-        const processProfileWithDelay = async (profile, initialDelay) => {
-            const threadNum = ++threadCounter; // Tăng trước để bắt đầu từ 1
-            const delay = initialDelay !== undefined ? initialDelay : 3000; // Delay ban đầu hoặc 10s cho thread tiếp theo
+        // Hàm xử lý profile
+        const processProfileWithDelay = async (profile, delay) => {
+            const threadNum = ++threadCounter;
             console.log(`[${profile.folderName}] Chờ ${delay / 1000} giây trước khi chạy (thread thứ ${threadNum})...`.yellow);
             await sleep(delay);
             activeThreads++;
             try {
+                console.log(`[${profile.folderName}] Đang chạy (thread thứ ${threadNum})...`.green);
                 await processProfile(profile, { url, elementSelector, linkRef, dataFilePath, showBrowser });
             } finally {
                 activeThreads--;
-                // Sau khi hoàn thành, chờ 10s rồi chạy thread tiếp theo nếu còn
-                if (profiles.length > 0) {
-                    await sleep(3000); // Chờ 10s trước khi chạy thread tiếp theo
-                    runNextProfile();
-                }
+                scheduleNextThread(); // Lên lịch thread tiếp theo khi thread này hoàn thành
             }
         };
 
-        const runNextProfile = async () => {
+        // Hàm lên lịch thread tiếp theo
+        const scheduleNextThread = () => {
             if (profiles.length > 0 && activeThreads < parallelThreads) {
-                const profile = profiles.shift(); // Lấy profile tiếp theo
-                await processProfileWithDelay(profile); // Không truyền initialDelay, mặc định là 10s
+                const now = Date.now();
+                const timeSinceLast = now - lastScheduledTime;
+                const delay = Math.max(0, delayBetweenThreads - timeSinceLast); // Đảm bảo cách ít nhất 3s
+
+                const profile = profiles.shift();
+                lastScheduledTime = now + delay; // Cập nhật thời điểm cuối cùng
+                processProfileWithDelay(profile, delay);
             }
         };
 
@@ -818,8 +823,9 @@ const run = async () => {
         const initialThreads = Math.min(parallelThreads, profiles.length);
         for (let i = 0; i < initialThreads; i++) {
             const profile = profiles.shift();
-            const initialDelay = i * 3000; // 0s, 10s, 20s, ..., 90s cho 10 thread đầu
-            processProfileWithDelay(profile, initialDelay);
+            const delay = i * delayBetweenThreads; // 0s, 3s, 6s, ..., 27s
+            lastScheduledTime = Date.now() + delay; // Cập nhật thời điểm cuối cùng
+            processProfileWithDelay(profile, delay);
         }
 
         // Chờ tất cả thread hoàn thành
@@ -855,5 +861,6 @@ const run = async () => {
         process.exit(0);
     }
 };
+
 
 run();
