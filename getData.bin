@@ -785,32 +785,46 @@ const run = async () => {
         // Chuyển đổi theard thành số nguyên
         const parallelThreads = parseInt(theard, 10) || MAX_PARALLEL_PROFILES;
 
-        // Hàm xử lý profile với delay
-        const processWithDelay = async (profile, index, callback) => {
-            const delay = index * 3000; // 10 giây (3000ms) nhân với chỉ số
-            console.log(`[${profile.folderName}] Chờ ${delay / 1000} giây trước khi chạy...`.yellow);
-            await sleep(delay); // Tạm dừng theo thời gian delay
+        // Hàng đợi xử lý
+        let activeThreads = 0;
+        let threadCounter = 0;
+
+        const processProfileWithDelay = async (profile) => {
+            const delay = Math.min(threadCounter, parallelThreads - 1) * 3000; // Tăng dần cho đến thread 10
+            console.log(`[${profile.folderName}] Chờ ${delay / 1000} giây trước khi chạy (thread thứ ${threadCounter + 1})...`.yellow);
+            await sleep(delay);
+            activeThreads++;
+            threadCounter++;
             try {
                 await processProfile(profile, { url, elementSelector, linkRef, dataFilePath, showBrowser });
-                callback(); // Gọi callback khi hoàn thành thành công
-            } catch (err) {
-                callback(err); // Truyền lỗi về callback nếu có lỗi
+            } finally {
+                activeThreads--;
+                // Sau khi hoàn thành, chờ 10s rồi chạy thread tiếp theo nếu còn
+                if (profiles.length > 0) {
+                    await sleep(3000); // Chờ 10s trước khi chạy thread tiếp theo
+                    runNextProfile();
+                }
             }
         };
 
-        // Sử dụng async.eachLimit để giới hạn số lượng tác vụ chạy đồng thời
-        await new Promise((resolve, reject) => {
-            async.eachLimit(profiles, parallelThreads, (profile, callback) => {
-                const index = profiles.indexOf(profile); // Lấy chỉ số của profile
-                processWithDelay(profile, index, callback); // Truyền callback vào processWithDelay
-            }, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+        const runNextProfile = async () => {
+            if (profiles.length > 0 && activeThreads < parallelThreads) {
+                const profile = profiles.shift(); // Lấy profile tiếp theo
+                processProfileWithDelay(profile);
+            }
+        };
+
+        // Khởi chạy các thread ban đầu
+        const initialThreads = Math.min(parallelThreads, profiles.length);
+        for (let i = 0; i < initialThreads; i++) {
+            const profile = profiles.shift();
+            processProfileWithDelay(profile);
+        }
+
+        // Chờ tất cả thread hoàn thành
+        while (activeThreads > 0 || profiles.length > 0) {
+            await sleep(1000); // Kiểm tra mỗi giây
+        }
 
         if (logoutError.length > 0) {
             const bom = '\uFEFF'; // BOM cho UTF-8
